@@ -1,6 +1,6 @@
-# Daily To-Do List
+# All In One Calculator
 
-A simple React-based to-do list application for managing daily tasks. Built with Vite for fast development and deployment.
+A simple React-based calculator application built with Vite for fast development and deployment.
 
 ## Features
 
@@ -66,7 +66,7 @@ This app can be deployed to GitHub Pages.
    ```
 4. Enable GitHub Pages in the repository settings, selecting the `gh-pages` branch as the source.
 
-The app will be available at `https://your-username.github.io/your-repo-name/`
+The app will be available at `https://pawankalhansh.github.io/All_In_One_Calculator/`
 
 ## Technologies Used
 
