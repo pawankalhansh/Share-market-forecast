@@ -194,9 +194,14 @@
   .sentiment-label { font-family: var(--display); font-size: 22px; letter-spacing: 2px; }
   .sentiment-score { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-top: 4px; }
 
+  /* SVG Gauge needle & dot adapt to theme */
+  #needle { stroke: var(--text); }
+  #gauge-dot { fill: var(--text); }
+  .gauge-track { stroke: var(--border); }
+
   .markets-table { width: 100%; border-collapse: collapse; }
   .markets-table th { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; text-align: left; padding: 8px 18px; border-bottom: 1px solid var(--border); background: var(--bg); }
-  .markets-table td { padding: 10px 18px; font-family: var(--mono); font-size: 11px; border-bottom: 1px solid rgba(26,48,80,0.5); }
+  .markets-table td { padding: 10px 18px; font-family: var(--mono); font-size: 11px; border-bottom: 1px solid var(--border); color: var(--text); }
   .markets-table tr:last-child td { border-bottom: none; }
   .markets-table tr:hover td { background: rgba(255,255,255,0.02); }
   .market-name { color: var(--text); font-weight: bold; }
@@ -228,7 +233,7 @@
 
   .fno-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; }
   .fno-title { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; }
-  .level-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(26,48,80,0.4); }
+  .level-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); }
   .level-type { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
   .level-val { font-family: var(--mono); font-size: 13px; font-weight: bold; }
   .level-call { color: var(--green); }
@@ -439,10 +444,10 @@
                 <stop offset="100%" stop-color="#00e676"/>
               </linearGradient>
             </defs>
-            <path d="M 20 90 A 70 70 0 0 1 160 90" fill="none" stroke="rgba(26,48,80,0.8)" stroke-width="14" stroke-linecap="round"/>
+            <path d="M 20 90 A 70 70 0 0 1 160 90" fill="none" class="gauge-track" stroke-width="14" stroke-linecap="round"/>
             <path d="M 20 90 A 70 70 0 0 1 160 90" fill="none" stroke="url(#gaugeGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="0" opacity="0.9"/>
-            <line id="needle" x1="90" y1="90" x2="90" y2="28" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-            <circle cx="90" cy="90" r="5" fill="white"/>
+            <line id="needle" x1="90" y1="90" x2="90" y2="28" stroke-width="2.5" stroke-linecap="round"/>
+            <circle id="gauge-dot" cx="90" cy="90" r="5"/>
           </svg>
         </div>
         <div class="sentiment-label" id="sent-label" style="color:var(--text-dim)">LOADING...</div>
