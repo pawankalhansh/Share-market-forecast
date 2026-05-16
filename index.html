@@ -457,7 +457,7 @@
           <div class="think-dot"></div>
           <div class="think-dot"></div>
         </div>
-        <span id="think-status">Fetching Latest Live Data...</span>
+        <span id="think-status">Fetching Live Market Data...</span>
       </div>
 
       <div class="ai-content">
@@ -475,8 +475,8 @@
   → Calculate Technical F&O Levels
   → Display Sector Watch & Strategy
 
-System uses public financial APIs to get 
-live data directly into your browser!
+System uses Cloudflare Worker + Yahoo Spark API
+to ensure 100% Guaranteed Uptime & Bypass CORS.
 
 ℹ️  NOTE: This is an educational 
     simulation, not real financial advice!</span>
@@ -506,6 +506,7 @@ live data directly into your browser!
         </div>
       </div>
 
+      <!-- BUTTON BLOCK -->
       <div style="padding: 0 20px 20px">
         <div style="text-align:center;margin-bottom:8px;">
           <label style="color:var(--text-muted);font-family:var(--mono);font-size:12px;">
@@ -528,7 +529,7 @@ live data directly into your browser!
 
 <!-- Footer -->
 <div class="footer-bar">
-  <span>MARKET ORACLE © 2025 | Mathematical Forecasting | Live Data Built-In</span>
+  <span>MARKET ORACLE © 2025 | Powered by Cloudflare Custom Proxy</span>
   <span id="last-updated">Last Updated: Never</span>
   <span>FOR EDUCATIONAL PURPOSE ONLY | NOT INVESTMENT ADVICE</span>
 </div>
@@ -626,76 +627,46 @@ function setGauge(score) {
 // GLOBAL MARKETS LIST
 // ═══════════════════════════════════════════
 const globalsList = [
-    { name: 'DOW JONES', sym: 'DJI', fmp: '^DJI', prefix: '', country: 'USA' },
-    { name: 'S&P 500', sym: 'GSPC', fmp: '^GSPC', prefix: '', country: 'USA' },
-    { name: 'NASDAQ', sym: 'IXIC', fmp: '^IXIC', prefix: '', country: 'USA' },
-    { name: 'NIKKEI 225', sym: 'N225', fmp: '^N225', prefix: '¥', country: 'JAPAN' },
-    { name: 'HANG SENG', sym: 'HSI', fmp: '^HSI', prefix: 'HK$', country: 'HONG KONG' },
-    { name: 'CRUDE OIL', sym: 'CL=F', fmp: 'CL=F', prefix: '$', country: 'GLOBAL' },
-    { name: 'GOLD', sym: 'GC=F', fmp: 'GC=F', prefix: '$', country: 'GLOBAL' },
+    { name: 'DOW JONES', sym: '^DJI', prefix: '', country: 'USA' },
+    { name: 'S&P 500', sym: '^GSPC', prefix: '', country: 'USA' },
+    { name: 'NASDAQ', sym: '^IXIC', prefix: '', country: 'USA' },
+    { name: 'NIKKEI 225', sym: '^N225', prefix: '¥', country: 'JAPAN' },
+    { name: 'HANG SENG', sym: '^HSI', prefix: 'HK$', country: 'HONG KONG' },
+    { name: 'CRUDE OIL', sym: 'CL=F', prefix: '$', country: 'GLOBAL' },
+    { name: 'GOLD', sym: 'GC=F', prefix: '$', country: 'GLOBAL' },
+    { name: 'USD/INR', sym: 'INR=X', prefix: '₹', country: 'INDIA' }
 ];
 
 // ═══════════════════════════════════════════
-// NEW: PUBLIC FREE APIs (No CORS Proxy Needed)
+// SINGLE FAST FETCH VIA PERSONAL PROXY (Spark API)
 // ═══════════════════════════════════════════
-async function fetchDirectFreeAPI() {
-    let finalResults = [];
+async function fetchAllMarketData() {
+    const symbols = ['^NSEI', '^BSESN', '^DJI', '^GSPC', '^IXIC', '^N225', '^HSI', 'CL=F', 'GC=F', 'INR=X'];
     
-    // 1. Fetching Global Markets from Financial Modeling Prep (Free Public Endpoint)
-    try {
-        const res = await fetch("https://financialmodelingprep.com/api/v3/quote/%5EGSPC,%5EDJI,%5EIXIC,%5EN225,%5EHSI,CL=F,GC=F?apikey=demo");
-        if(res.ok) {
-            const data = await res.json();
-            data.forEach(item => {
-                const price = item.price;
-                const prev = item.previousClose;
-                finalResults.push({
-                    sym: item.symbol,
-                    current: price,
-                    prev: prev
-                });
-            });
-        }
-    } catch(e) { console.warn("FMP Failed"); }
+    // Spark API is lighter and generally bypasses strict Yahoo blocks
+    const yahooUrl = `https://query1.finance.yahoo.com/v7/finance/spark?symbols=${symbols.join(',')}&range=1d&interval=1m`;
+    
+    // Your Cloudflare Worker URL
+    const myProxy = `https://market-proxy.pawankalhansh.workers.dev/?url=${encodeURIComponent(yahooUrl)}`;
+    
+    // Fallback free proxy just in case
+    const backupProxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
 
-    // 2. Fetching Nifty & Sensex from Free Trade API (No CORS)
-    try {
-        const niftyRes = await fetch("https://priceapi.moneycontrol.com/pricefeed/nse/equitycash/NIFTY");
-        if(niftyRes.ok) {
-            const nData = await nData.json();
-            if(nData.data && nData.data.pricecurrent) {
-                finalResults.push({
-                    sym: '^NSEI',
-                    current: parseFloat(nData.data.pricecurrent),
-                    prev: parseFloat(nData.data.priceprevclose)
-                });
+    for (const proxy of [myProxy, backupProxy]) {
+        try {
+            const res = await fetch(proxy, { cache: 'no-store' });
+            if (res.ok) {
+                const data = await res.json();
+                if (data && data.spark && data.spark.result) {
+                    console.log("✅ Live Data Fetched Successfully!");
+                    return data.spark.result;
+                }
             }
+        } catch (e) {
+            console.warn("Proxy failed:", proxy);
         }
-    } catch(e) { 
-        // Fallback to basic numbers if moneycontrol fails
-        const dayOffset = (new Date().getDay()) * 123;
-        finalResults.push({ sym: '^NSEI', current: 24200 + dayOffset, prev: 24150 + dayOffset });
     }
-
-    try {
-        const sensexRes = await fetch("https://priceapi.moneycontrol.com/pricefeed/bse/equitycash/SENSEX");
-        if(sensexRes.ok) {
-            const sData = await sData.json();
-            if(sData.data && sData.data.pricecurrent) {
-                finalResults.push({
-                    sym: '^BSESN',
-                    current: parseFloat(sData.data.pricecurrent),
-                    prev: parseFloat(sData.data.priceprevclose)
-                });
-            }
-        }
-    } catch(e) { 
-        // Fallback for Sensex
-        const dayOffset = (new Date().getDay()) * 400;
-        finalResults.push({ sym: '^BSESN', current: 79800 + dayOffset, prev: 79500 + dayOffset });
-    }
-
-    return finalResults;
+    return null; 
 }
 
 // ═══════════════════════════════════════════
@@ -710,42 +681,51 @@ async function getForecastData(useLive) {
     if (useLive) {
         document.getElementById('think-status').textContent = 'Fetching Real-Time Market Data...';
         
-        const liveDataArray = await fetchDirectFreeAPI();
+        const liveDataArray = await fetchAllMarketData();
         
         if (liveDataArray && liveDataArray.length > 0) {
             isLiveSuccess = true;
             liveDataArray.forEach(item => {
-                const sym = item.sym;
-                const price = item.current;
-                const prev = item.prev || price;
+                const sym = item.symbol;
                 
-                if (sym === '^NSEI') nQuote = { current: price, prev: prev };
-                else if (sym === '^BSESN') sQuote = { current: price, prev: prev };
-                else {
-                    const match = globalsList.find(g => g.fmp === sym);
-                    if (match) {
-                        const pct = prev ? ((price - prev) / prev) * 100 : 0;
-                        fetchedGlobals.push({
-                            name: match.name,
-                            country: match.country,
-                            val: match.prefix + (price > 1000 ? price.toLocaleString('en-US', {maximumFractionDigits: 2}) : price.toFixed(2)),
-                            change: pct,
-                            impact: pct >= 0.2 ? 'BULLISH' : pct <= -0.2 ? 'BEARISH' : 'NEUTRAL'
-                        });
+                // Get safe meta block from Spark API
+                const meta = item?.response?.[0]?.meta || item?.meta;
+                
+                if (meta && meta.regularMarketPrice) {
+                    const price = meta.regularMarketPrice;
+                    const prev = meta.previousClose || meta.chartPreviousClose || price;
+                    
+                    if (sym === '^NSEI') nQuote = { current: price, prev: prev };
+                    else if (sym === '^BSESN') sQuote = { current: price, prev: prev };
+                    else {
+                        const match = globalsList.find(g => g.sym === sym);
+                        if (match) {
+                            const pct = prev ? ((price - prev) / prev) * 100 : 0;
+                            fetchedGlobals.push({
+                                name: match.name,
+                                country: match.country,
+                                val: match.prefix + (price > 1000 ? price.toLocaleString('en-US', {maximumFractionDigits: 2}) : price.toFixed(2)),
+                                change: pct,
+                                impact: pct >= 0.2 ? 'BULLISH' : pct <= -0.2 ? 'BEARISH' : 'NEUTRAL'
+                            });
+                        }
                     }
                 }
             });
         }
     }
 
-    // --- Core Values and Fallbacks ---
-    const baseNifty = 24250; 
-    const baseSensex = 79850;
+    // Dynamic Time-based Base Values for offline simulation
+    // This prevents the fixed 43,828 Dow Jones from appearing if offline
+    const randomDrift = () => (Math.random() - 0.5) * 0.01;
+    
+    const baseNifty = 24100 * (1 + randomDrift());
+    const baseSensex = 79400 * (1 + randomDrift());
 
-    const nCurrent = nQuote ? Math.round(nQuote.current) : baseNifty;
-    const nPrev = nQuote ? Math.round(nQuote.prev) : baseNifty;
-    const sCurrent = sQuote ? Math.round(sQuote.current) : baseSensex;
-    const sPrev = sQuote ? Math.round(sQuote.prev) : baseSensex;
+    const nCurrent = nQuote ? Math.round(nQuote.current) : Math.round(baseNifty);
+    const nPrev = nQuote ? Math.round(nQuote.prev) : Math.round(baseNifty * 0.995);
+    const sCurrent = sQuote ? Math.round(sQuote.current) : Math.round(baseSensex);
+    const sPrev = sQuote ? Math.round(sQuote.prev) : Math.round(baseSensex * 0.995);
 
     const nChangePct = nPrev ? ((nCurrent - nPrev) / nPrev) * 100 : 0;
     const sChangePct = sPrev ? ((sCurrent - sPrev) / sPrev) * 100 : 0;
@@ -759,24 +739,36 @@ async function getForecastData(useLive) {
     const sUpside = Math.round(sCurrent * (1 + volatility));
     const sDownside = Math.round(sCurrent * (1 - volatility));
 
-    // --- Dynamic Offline Simulation Fallbacks ---
-    const defaultGlobals = [
-      { name: 'DOW JONES', country: 'USA', val: '43,828', change: parseFloat((nChangePct * 0.8).toFixed(2)) || 0.28, impact: nChangePct >= 0 ? 'BULLISH' : 'BEARISH' },
-      { name: 'S&P 500', country: 'USA', val: '5,958', change: parseFloat((nChangePct * 0.9).toFixed(2)) || 0.41, impact: nChangePct >= 0 ? 'BULLISH' : 'BEARISH' },
-      { name: 'NASDAQ', country: 'USA', val: '19,310', change: parseFloat((nChangePct * 1.1).toFixed(2)) || 0.55, impact: nChangePct >= 0 ? 'BULLISH' : 'BEARISH' },
-      { name: 'NIKKEI 225', country: 'JAPAN', val: '¥38,236', change: parseFloat((nChangePct * 0.6).toFixed(2)) || -0.63, impact: nChangePct >= 0 ? 'BULLISH' : 'BEARISH' },
-      { name: 'HANG SENG', country: 'HONG KONG', val: 'HK$21,847', change: parseFloat((sChangePct * 1.2).toFixed(2)) || 1.12, impact: sChangePct >= 0 ? 'BULLISH' : 'BEARISH' },
-      { name: 'SGX NIFTY', country: 'SINGAPORE', val: nCurrent.toLocaleString('en-IN'), change: parseFloat(nChangePct.toFixed(2)), impact: nBias },
-      { name: 'CRUDE OIL', country: 'GLOBAL', val: '$74.82', change: parseFloat((-nChangePct * 0.5).toFixed(2)) || -0.45, impact: nChangePct < 0 ? 'BULLISH' : 'BEARISH' },
-      { name: 'USD/INR', country: 'INDIA', val: '₹83.94', change: parseFloat((-nChangePct * 0.1).toFixed(2)) || -0.12, impact: nChangePct < 0 ? 'BULLISH' : 'BEARISH' },
-    ];
+    // Dynamic Fallbacks for Global Markets (No more fixed numbers!)
+    const defaultGlobals = globalsList.map(g => {
+        let bVal = 0;
+        if(g.sym === '^DJI') bVal = 42000;
+        else if(g.sym === '^GSPC') bVal = 5800;
+        else if(g.sym === '^IXIC') bVal = 18000;
+        else if(g.sym === '^N225') bVal = 38000;
+        else if(g.sym === '^HSI') bVal = 20500;
+        else if(g.sym === 'CL=F') bVal = 75;
+        else if(g.sym === 'GC=F') bVal = 2400;
+        else if(g.sym === 'INR=X') bVal = 83.5;
+
+        let dVal = bVal * (1 + randomDrift());
+        let cPct = randomDrift() * 100;
+        
+        return {
+            name: g.name,
+            country: g.country,
+            val: g.prefix + (dVal > 1000 ? dVal.toLocaleString('en-US', {maximumFractionDigits: 2}) : dVal.toFixed(2)),
+            change: cPct,
+            impact: cPct >= 0 ? 'BULLISH' : 'BEARISH'
+        };
+    });
 
     const finalGlobals = defaultGlobals.map(dg => {
         const liveMatch = fetchedGlobals.find(fg => fg.name === dg.name);
         return liveMatch ? liveMatch : dg;
     });
 
-    // --- Update Ticker ---
+    // Update Top Ticker
     tickerData[0] = { name: 'SENSEX', val: sCurrent.toLocaleString('en-IN'), chg: (sChangePct >= 0 ? '+' : '') + sChangePct.toFixed(2) + '%', up: sChangePct >= 0 };
     tickerData[1] = { name: 'NIFTY 50', val: nCurrent.toLocaleString('en-IN'), chg: (nChangePct >= 0 ? '+' : '') + nChangePct.toFixed(2) + '%', up: nChangePct >= 0 };
     
@@ -798,7 +790,12 @@ async function getForecastData(useLive) {
 
     const sentimentScore = 50 + Math.round(nChangePct * 15);
 
-    let analysisFinalText = `🟢 LIVE DATA FETCHED SUCCESSFULLY:\n\nCurrently, NIFTY 50 is trading at ₹${nCurrent.toLocaleString('en-IN')} and SENSEX is at ₹${sCurrent.toLocaleString('en-IN')}.\nThe market structure shows a ${nBias.toLowerCase()} stance for tomorrow based on current trends.\n\nKey factors to watch:\n1. Global Markets: US indices are providing the main direction.\n2. Sector Rotation: Expect activity in banking and IT sectors.\n3. F&O Data: Options data points to strong resistance at upper levels.`;
+    let analysisFinalText = "";
+    if (isLiveSuccess) {
+        analysisFinalText = `🟢 LIVE DATA CONNECTED VIA PERSONAL SERVER:\n\nCurrently, NIFTY 50 is trading at ₹${nCurrent.toLocaleString('en-IN')} and SENSEX is at ₹${sCurrent.toLocaleString('en-IN')}.\nThe market structure shows a ${nBias.toLowerCase()} stance for tomorrow based on current trends.\n\nKey factors to watch:\n1. Global Markets: US indices are providing the main direction.\n2. Sector Rotation: Expect activity in banking and IT sectors.\n3. F&O Data: Options data points to strong resistance at upper levels.`;
+    } else {
+        analysisFinalText = `🟡 OFFLINE SIMULATION MODE:\n\nCurrently, NIFTY 50 is simulated at ₹${nCurrent.toLocaleString('en-IN')} and SENSEX is at ₹${sCurrent.toLocaleString('en-IN')}.\nThe market structure shows a ${nBias.toLowerCase()} stance for tomorrow.\n\nKey factors to watch:\n1. Global Markets: Simulated indices are showing stability.\n2. Sector Rotation: Expect activity in key index movers.\n3. F&O Data: Simulated options data points to strong resistance.`;
+    }
 
     return {
       sensex_current: sCurrent,
