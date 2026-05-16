@@ -1310,8 +1310,10 @@ const FINNHUB_API_KEY = 'd846tjpr01qutij857lgd846tjpr01qutij857m0';
 // ═══════════════════════════════════════════
 // Live data helpers (Finnhub)
 // ═══════════════════════════════════════════
+const TRY_SYMBOLS = ['NSEI','^NSEI','NSE:NIFTY','NIFTY','^BSESN','BSE:SENSEX','SGX:NIFTY','^NSEI.NS','^BSESN.BO'];
+
 async function fetchLiveMarketData() {
-  const trySymbols = ['NSEI','^NSEI','NSE:NIFTY','NIFTY','^BSESN','BSE:SENSEX','SGX:NIFTY'];
+  const trySymbols = TRY_SYMBOLS;
   for (const sym of trySymbols) {
     try {
       const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(sym)}&token=${FINNHUB_API_KEY}`;
@@ -1510,12 +1512,15 @@ async function runAnalysis() {
       output.appendChild(debugPre);
         // Run automated connectivity tests and show results
         try {
-          const sym = 'NSEI';
-          const direct = await testFinnhubDirect(sym);
-          const prox = await testFinnhubProxy(sym);
+          const results = {};
+          for (const sym of TRY_SYMBOLS) {
+            const direct = await testFinnhubDirect(sym);
+            const proxy = await testFinnhubProxy(sym);
+            results[sym] = { direct, proxy };
+          }
           const autoPre = document.createElement('pre');
-          autoPre.style.cssText = 'font-family:var(--mono);font-size:10px;line-height:1.4;color:var(--text-muted);white-space:pre-wrap;margin-top:8px;max-height:220px;overflow:auto;border-top:1px dashed var(--border);padding-top:8px';
-          autoPre.textContent = 'AUTOTEST — Finnhub connectivity (symbol: ' + sym + ')\n' + JSON.stringify({ direct, proxy: prox }, null, 2);
+          autoPre.style.cssText = 'font-family:var(--mono);font-size:10px;line-height:1.4;color:var(--text-muted);white-space:pre-wrap;margin-top:8px;max-height:360px;overflow:auto;border-top:1px dashed var(--border);padding-top:8px';
+          autoPre.textContent = 'AUTOTEST — Finnhub connectivity (symbols: ' + TRY_SYMBOLS.join(',') + ')\n' + JSON.stringify(results, null, 2);
           output.appendChild(autoPre);
         } catch (e) {
           console.warn('Autotest error', e);
