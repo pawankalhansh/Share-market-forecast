@@ -42,7 +42,6 @@
       radial-gradient(ellipse at 80% 100%, rgba(124,77,255,0.04) 0%, transparent 50%);
   }
 
-  /* Scanlines effect */
   body::before {
     content: '';
     position: fixed;
@@ -52,7 +51,6 @@
     z-index: 999;
   }
 
-  /* Header */
   header {
     display: flex;
     align-items: center;
@@ -66,12 +64,7 @@
     z-index: 100;
   }
 
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
+  .logo { display: flex; align-items: center; gap: 12px; }
   .logo-icon {
     width: 36px; height: 36px;
     background: linear-gradient(135deg, var(--blue), var(--purple));
@@ -79,712 +72,167 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 18px;
   }
-
   .logo-text {
     font-family: var(--display);
-    font-size: 26px;
-    letter-spacing: 2px;
+    font-size: 26px; letter-spacing: 2px;
     background: linear-gradient(90deg, var(--blue), var(--text));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
-
   .logo-sub {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--text-muted);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-top: -4px;
+    font-family: var(--mono); font-size: 9px;
+    color: var(--text-muted); letter-spacing: 3px;
+    text-transform: uppercase; margin-top: -4px;
   }
 
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
+  .header-right { display: flex; align-items: center; gap: 20px; }
+  .live-badge { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; color: var(--green); letter-spacing: 1px; }
+  .live-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 1.5s infinite; box-shadow: var(--glow-green); }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+  .current-time { font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
 
-  .live-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--green);
-    letter-spacing: 1px;
-  }
-
-  .live-dot {
-    width: 7px; height: 7px;
-    background: var(--green);
-    border-radius: 50%;
-    animation: pulse 1.5s infinite;
-    box-shadow: var(--glow-green);
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  .current-time {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-
-  /* Ticker */
-  .ticker-wrap {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    overflow: hidden;
-    height: 32px;
-    display: flex;
-    align-items: center;
-  }
-
-  .ticker-label {
-    background: var(--blue);
-    color: #000;
-    font-family: var(--mono);
-    font-size: 9px;
-    font-weight: 700;
-    padding: 0 12px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    letter-spacing: 2px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .ticker-scroll {
-    display: flex;
-    animation: ticker 40s linear infinite;
-    white-space: nowrap;
-  }
-
-  .ticker-item {
-    font-family: var(--mono);
-    font-size: 10px;
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-dim);
-  }
-
+  .ticker-wrap { background: var(--surface); border-bottom: 1px solid var(--border); overflow: hidden; height: 32px; display: flex; align-items: center; }
+  .ticker-label { background: var(--blue); color: #000; font-family: var(--mono); font-size: 9px; font-weight: 700; padding: 0 12px; height: 100%; display: flex; align-items: center; letter-spacing: 2px; white-space: nowrap; flex-shrink: 0; }
+  .ticker-scroll { display: flex; animation: ticker 40s linear infinite; white-space: nowrap; }
+  .ticker-item { font-family: var(--mono); font-size: 10px; padding: 0 24px; display: flex; align-items: center; gap: 8px; color: var(--text-dim); }
   .ticker-item .name { color: var(--text); }
   .ticker-item .up { color: var(--green); }
   .ticker-item .dn { color: var(--red); }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-  @keyframes ticker {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
+  .main { padding: 24px 28px; display: grid; grid-template-columns: 1fr 1fr 360px; grid-template-rows: auto auto auto; gap: 20px; max-width: 1600px; margin: 0 auto; }
+  
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; position: relative; }
+  .panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--blue), transparent); opacity: 0.4; }
+  .panel-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface2); }
+  .panel-title { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
+  .panel-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
 
-  /* Main Grid */
-  .main {
-    padding: 24px 28px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 360px;
-    grid-template-rows: auto auto auto;
-    gap: 20px;
-    max-width: 1600px;
-    margin: 0 auto;
-  }
-
-  /* Panel */
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .panel::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--blue), transparent);
-    opacity: 0.4;
-  }
-
-  .panel-header {
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--surface2);
-  }
-
-  .panel-title {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .panel-title .dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--blue);
-  }
-
-  /* Forecast Cards */
-  .forecast-card {
-    grid-column: span 1;
-  }
-
-  .forecast-body {
-    padding: 20px;
-  }
-
-  .index-name {
-    font-family: var(--display);
-    font-size: 38px;
-    letter-spacing: 2px;
-    line-height: 1;
-  }
-
+  .forecast-card { grid-column: span 1; }
+  .forecast-body { padding: 20px; }
+  .index-name { font-family: var(--display); font-size: 38px; letter-spacing: 2px; line-height: 1; }
   .index-name.sensex { color: var(--amber); }
   .index-name.nifty { color: var(--blue); }
+  .current-val { font-family: var(--mono); font-size: 13px; color: var(--text-dim); margin-top: 4px; margin-bottom: 20px; }
 
-  .current-val {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--text-dim);
-    margin-top: 4px;
-    margin-bottom: 20px;
-  }
-
-  .forecast-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .f-box {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-    position: relative;
-    overflow: hidden;
-  }
-
+  .forecast-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .f-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; position: relative; overflow: hidden; }
   .f-box.up { border-color: rgba(0,230,118,0.3); }
   .f-box.dn { border-color: rgba(255,23,68,0.3); }
-
-  .f-box::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.04;
-  }
+  .f-box::after { content: ''; position: absolute; inset: 0; opacity: 0.04; }
   .f-box.up::after { background: var(--green); }
   .f-box.dn::after { background: var(--red); }
-
-  .f-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .f-val {
-    font-family: var(--mono);
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1;
-  }
-
+  .f-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+  .f-val { font-family: var(--mono); font-size: 20px; font-weight: 700; line-height: 1; }
   .f-val.up { color: var(--green); text-shadow: var(--glow-green); }
   .f-val.dn { color: var(--red); text-shadow: var(--glow-red); }
+  .f-pct { font-size: 11px; margin-top: 4px; opacity: 0.7; }
 
-  .f-pct {
-    font-size: 11px;
-    margin-top: 4px;
-    opacity: 0.7;
-  }
+  .confidence-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .conf-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .conf-val { color: var(--amber); font-size: 11px; }
+  .conf-bar-wrap { background: var(--bg); height: 6px; border-radius: 3px; overflow: hidden; }
+  .conf-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--amber), var(--green)); transition: width 1s ease; box-shadow: 0 0 10px rgba(255,171,0,0.4); }
 
-  /* Confidence Bar */
-  .confidence-section {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-  }
-
-  .conf-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .conf-val {
-    color: var(--amber);
-    font-size: 11px;
-  }
-
-  .conf-bar-wrap {
-    background: var(--bg);
-    height: 6px;
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .conf-bar {
-    height: 100%;
-    border-radius: 3px;
-    background: linear-gradient(90deg, var(--amber), var(--green));
-    transition: width 1s ease;
-    box-shadow: 0 0 10px rgba(255,171,0,0.4);
-  }
-
-  /* Sentiment Gauge */
-  .sentiment-box {
-    text-align: center;
-    padding: 20px;
-  }
-
-  .gauge-wrap {
-    position: relative;
-    width: 180px;
-    height: 100px;
-    margin: 0 auto 16px;
-  }
-
+  .sentiment-box { text-align: center; padding: 20px; }
+  .gauge-wrap { position: relative; width: 180px; height: 100px; margin: 0 auto 16px; }
   .gauge-svg { width: 100%; height: 100%; }
+  .gauge-needle { transform-origin: 90px 90px; transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .sentiment-label { font-family: var(--display); font-size: 22px; letter-spacing: 2px; }
+  .sentiment-score { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-top: 4px; }
 
-  .gauge-needle {
-    transform-origin: 90px 90px;
-    transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .sentiment-label {
-    font-family: var(--display);
-    font-size: 22px;
-    letter-spacing: 2px;
-  }
-
-  .sentiment-score {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 4px;
-  }
-
-  /* Global Markets Table */
-  .markets-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .markets-table th {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    text-align: left;
-    padding: 8px 18px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
-  }
-
-  .markets-table td {
-    padding: 10px 18px;
-    font-family: var(--mono);
-    font-size: 11px;
-    border-bottom: 1px solid rgba(26,48,80,0.5);
-  }
-
+  .markets-table { width: 100%; border-collapse: collapse; }
+  .markets-table th { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; text-align: left; padding: 8px 18px; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .markets-table td { padding: 10px 18px; font-family: var(--mono); font-size: 11px; border-bottom: 1px solid rgba(26,48,80,0.5); }
   .markets-table tr:last-child td { border-bottom: none; }
-
   .markets-table tr:hover td { background: rgba(255,255,255,0.02); }
-
   .market-name { color: var(--text); font-weight: bold; }
   .market-country { color: var(--text-muted); font-size: 9px; }
   .val-up { color: var(--green); }
   .val-dn { color: var(--red); }
   .val-neu { color: var(--text-dim); }
 
-  /* AI Analysis Panel */
-  .ai-panel {
-    grid-column: span 3;
-  }
-
-  .ai-body {
-    padding: 0;
-  }
-
-  .ai-tabs {
-    display: flex;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
-  }
-
-  .ai-tab {
-    padding: 12px 20px;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 1px;
-    color: var(--text-muted);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-    text-transform: uppercase;
-    background: none;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-  }
-
+  .ai-panel { grid-column: span 3; }
+  .ai-body { padding: 0; }
+  .ai-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .ai-tab { padding: 12px 20px; font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; text-transform: uppercase; background: none; border: none; }
   .ai-tab:hover { color: var(--text-dim); }
   .ai-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
-
-  .ai-content {
-    padding: 20px;
-    min-height: 200px;
-  }
-
+  .ai-content { padding: 20px; min-height: 200px; }
   .tab-pane { display: none; }
   .tab-pane.active { display: block; }
+  .ai-output { font-family: var(--mono); font-size: 11px; line-height: 1.9; color: var(--text-dim); white-space: pre-wrap; }
 
-  /* AI Output */
-  .ai-output {
-    font-family: var(--mono);
-    font-size: 11px;
-    line-height: 1.9;
-    color: var(--text-dim);
-    white-space: pre-wrap;
-  }
-
-  .ai-output .highlight { color: var(--green); font-weight: bold; }
-  .ai-output .warning { color: var(--amber); }
-  .ai-output .danger { color: var(--red); }
-  .ai-output .accent { color: var(--blue); }
-
-  /* News Grid */
-  .news-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
-
-  .news-card {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .news-card:hover {
-    border-color: var(--blue);
-    transform: translateY(-2px);
-  }
-
-  .news-source {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--blue);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .news-headline {
-    font-size: 12px;
-    line-height: 1.5;
-    color: var(--text);
-    margin-bottom: 8px;
-  }
-
-  .news-impact {
-    font-family: var(--mono);
-    font-size: 9px;
-    padding: 3px 8px;
-    border-radius: 3px;
-    display: inline-block;
-  }
-
+  .news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .news-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; cursor: pointer; transition: all 0.2s; }
+  .news-card:hover { border-color: var(--blue); transform: translateY(-2px); }
+  .news-source { font-family: var(--mono); font-size: 9px; color: var(--blue); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .news-headline { font-size: 12px; line-height: 1.5; color: var(--text); margin-bottom: 8px; }
+  .news-impact { font-family: var(--mono); font-size: 9px; padding: 3px 8px; border-radius: 3px; display: inline-block; }
   .impact-bull { background: rgba(0,230,118,0.1); color: var(--green); }
   .impact-bear { background: rgba(255,23,68,0.1); color: var(--red); }
   .impact-neu { background: rgba(107,138,170,0.1); color: var(--text-dim); }
 
-  /* FnO Levels */
-  .fno-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    padding: 20px;
-  }
-
-  .fno-section { }
-  .fno-title {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .level-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 7px 0;
-    border-bottom: 1px solid rgba(26,48,80,0.4);
-  }
-
-  .level-type {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text-dim);
-  }
-
-  .level-val {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: bold;
-  }
-
+  .fno-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; }
+  .fno-title { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; }
+  .level-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(26,48,80,0.4); }
+  .level-type { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+  .level-val { font-family: var(--mono); font-size: 13px; font-weight: bold; }
   .level-call { color: var(--green); }
   .level-put { color: var(--red); }
   .level-target { color: var(--amber); }
   .level-sl { color: var(--purple); }
 
-  /* Analyze Button */
-  .analyze-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: linear-gradient(135deg, #0a1f35, #0f2a48);
-    border: 1px solid var(--blue);
-    border-radius: 8px;
-    color: var(--blue);
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 2px;
-    padding: 14px 28px;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-transform: uppercase;
-    width: 100%;
-    margin: 16px 0 0;
-    box-shadow: 0 0 30px rgba(0,176,255,0.1);
-  }
-
-  .analyze-btn:hover {
-    background: linear-gradient(135deg, #0d2a45, #1a3d60);
-    box-shadow: 0 0 30px rgba(0,176,255,0.25);
-    transform: translateY(-1px);
-  }
-
-  .analyze-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-
+  .analyze-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #0a1f35, #0f2a48); border: 1px solid var(--blue); border-radius: 8px; color: var(--blue); font-family: var(--mono); font-size: 11px; letter-spacing: 2px; padding: 14px 28px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; width: 100%; margin: 16px 0 0; box-shadow: 0 0 30px rgba(0,176,255,0.1); }
+  .analyze-btn:hover { background: linear-gradient(135deg, #0d2a45, #1a3d60); box-shadow: 0 0 30px rgba(0,176,255,0.25); transform: translateY(-1px); }
+  .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .btn-icon { font-size: 16px; }
 
-  /* Loading */
-  .thinking {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    padding: 16px 0;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--blue);
-  }
-
+  .thinking { display: none; align-items: center; gap: 10px; padding: 16px 0; font-family: var(--mono); font-size: 11px; color: var(--blue); }
   .thinking.show { display: flex; }
-
-  .think-dots {
-    display: flex;
-    gap: 4px;
-  }
-
-  .think-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--blue);
-    animation: think 1.4s infinite ease-in-out;
-  }
-
+  .think-dots { display: flex; gap: 4px; }
+  .think-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: think 1.4s infinite ease-in-out; }
   .think-dot:nth-child(2) { animation-delay: 0.2s; }
   .think-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes think { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
 
-  @keyframes think {
-    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-    40% { transform: scale(1); opacity: 1; }
-  }
-
-  /* Sidebar */
-  .sidebar {
-    grid-column: 3;
-    grid-row: 1 / 3;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  /* Stats row */
-  .stats-row {
-    grid-column: span 2;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
-
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 2px;
-  }
-
+  .sidebar { grid-column: 3; grid-row: 1 / 3; display: flex; flex-direction: column; gap: 20px; }
+  .stats-row { grid-column: span 2; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; }
   .stat-card.s1::before { background: var(--green); }
   .stat-card.s2::before { background: var(--red); }
   .stat-card.s3::before { background: var(--amber); }
   .stat-card.s4::before { background: var(--blue); }
-
   .stat-icon { font-size: 20px; margin-bottom: 10px; }
-  .stat-val {
-    font-family: var(--display);
-    font-size: 30px;
-    letter-spacing: 1px;
-    line-height: 1;
-  }
+  .stat-val { font-family: var(--display); font-size: 30px; letter-spacing: 1px; line-height: 1; }
   .stat-val.up { color: var(--green); }
   .stat-val.dn { color: var(--red); }
   .stat-val.am { color: var(--amber); }
   .stat-val.bl { color: var(--blue); }
+  .stat-label { font-family: var(--mono); font-size: 9px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
 
-  .stat-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--text-muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-top: 6px;
-  }
-
-  /* Typewriter */
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  .cursor {
-    display: inline-block;
-    width: 7px; height: 13px;
-    background: var(--blue);
-    margin-left: 2px;
-    vertical-align: middle;
-    animation: blink 1s infinite;
-  }
-
-  /* Scrollbar */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  /* mini chart bars */
-  .mini-chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    height: 32px;
-    margin-top: 8px;
-  }
-
-  .bar {
-    flex: 1;
-    border-radius: 2px 2px 0 0;
-    background: var(--border);
-    transition: height 0.5s ease;
-  }
-
+  .mini-chart { display: flex; align-items: flex-end; gap: 3px; height: 32px; margin-top: 8px; }
+  .bar { flex: 1; border-radius: 2px 2px 0 0; background: var(--border); transition: height 0.5s ease; }
   .bar.up { background: var(--green-dim); }
   .bar.dn { background: var(--red-dim); }
 
-  /* Responsive */
   @media (max-width: 1100px) {
-    .main {
-      grid-template-columns: 1fr 1fr;
-    }
+    .main { grid-template-columns: 1fr 1fr; }
     .sidebar { grid-column: span 2; grid-row: auto; }
     .ai-panel { grid-column: span 2; }
     .stats-row { grid-column: span 2; }
     .news-grid { grid-template-columns: repeat(2,1fr); }
   }
 
-  .tag {
-    font-family: var(--mono);
-    font-size: 9px;
-    padding: 2px 7px;
-    border-radius: 3px;
-    background: rgba(0,176,255,0.1);
-    color: var(--blue);
-    letter-spacing: 1px;
-  }
-
+  .tag { font-family: var(--mono); font-size: 9px; padding: 2px 7px; border-radius: 3px; background: rgba(0,176,255,0.1); color: var(--blue); letter-spacing: 1px; }
   .tag.bull { background: rgba(0,230,118,0.1); color: var(--green); }
   .tag.bear { background: rgba(255,23,68,0.1); color: var(--red); }
 
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 14px 0;
-  }
-
-  .footer-bar {
-    margin-top: 20px;
-    padding: 14px 28px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-  }
+  .footer-bar { margin-top: 20px; padding: 14px 28px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 9px; color: var(--text-muted); letter-spacing: 1px; }
 </style>
 </head>
 <body>
@@ -1018,412 +466,8 @@
           <div class="think-dot"></div>
           <div class="think-dot"></div>
         </div>
-        <span id="think-status">AI analyzing global markets and news...</span>
+        <span id="think-status">Fetching Live Nifty & Sensex Data...</span>
       </div>
 
       <div class="ai-content">
-        <div id="tab-analysis" class="tab-pane active">
-          <div class="ai-output" id="analysis-output">
-<span style="color:var(--text-muted)">╔══════════════════════════════════════════╗
-║     MARKET ORACLE — FORECAST SIMULATOR   ║
-║          Math & Algorithm Based          ║
-╚══════════════════════════════════════════╝
-
-▶ Click "RUN AI ANALYSIS" button below to:
-  → Load global market data algorithms
-  → Generate Sensex & Nifty Forecast
-  → Calculate Technical F&O Levels
-  → Display Sector Watch & Strategy
-
-System runs entirely on intelligent 
-mathematical algorithms allowing it 
-to work 100% perfectly offline or 
-on public pages without API blocks.
-
-ℹ️  NOTE: This is an educational 
-    simulation, not real financial advice!</span>
-          </div>
-        </div>
-
-        <div id="tab-fno" class="tab-pane">
-          <div class="fno-grid" id="fno-content">
-            <div style="grid-column:span 2;text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:11px;padding:40px 0">
-              Run AI Analysis to see F&O levels...
-            </div>
-          </div>
-        </div>
-
-        <div id="tab-news" class="tab-pane">
-          <div class="news-grid" id="news-grid">
-            <div style="grid-column:span 3;text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:11px;padding:40px 0">
-              Run AI Analysis to load news impact...
-            </div>
-          </div>
-        </div>
-
-        <div id="tab-strategy" class="tab-pane">
-          <div class="ai-output" id="strategy-output">
-            <span style="color:var(--text-muted)">Run AI Analysis to get trading strategy...</span>
-          </div>
-        </div>
-      </div>
-
-      <div style="padding: 0 20px 20px">
-        <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">
-          <span class="btn-icon">🔮</span>
-          RUN AI ANALYSIS — MARKET FORECAST
-        </button>
-        <div style="text-align:center;font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:10px;letter-spacing:1px">
-          ⚠️ DISCLAIMER: Simulation-generated forecast | Not SEBI-registered investment advice | Trade at your own risk
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- Footer -->
-<div class="footer-bar">
-  <span>MARKET ORACLE © 2025 | Mathematical Forecasting | Simulation Data</span>
-  <span id="last-updated">Last Updated: Never</span>
-  <span>FOR EDUCATIONAL PURPOSE ONLY | NOT INVESTMENT ADVICE</span>
-</div>
-
-<script>
-// ═══════════════════════════════════════════
-// CLOCK
-// ═══════════════════════════════════════════
-function updateClock() {
-  const now = new Date();
-  const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-  const h = String(ist.getHours()).padStart(2,'0');
-  const m = String(ist.getMinutes()).padStart(2,'0');
-  const s = String(ist.getSeconds()).padStart(2,'0');
-  document.getElementById('clock').textContent = `${h}:${m}:${s} IST`;
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-// ═══════════════════════════════════════════
-// TICKER DATA
-// ═══════════════════════════════════════════
-const tickerData = [
-  { name: 'SENSEX', val: '82,948', chg: '+0.45%', up: true },
-  { name: 'NIFTY 50', val: '25,217', chg: '+0.38%', up: true },
-  { name: 'BANK NIFTY', val: '54,186', chg: '-0.12%', up: false },
-  { name: 'DOW JONES', val: '43,828', chg: '+0.28%', up: true },
-  { name: 'S&P 500', val: '5,958', chg: '+0.41%', up: true },
-  { name: 'NASDAQ', val: '19,310', chg: '+0.55%', up: true },
-  { name: 'NIKKEI 225', val: '38,236', chg: '-0.63%', up: false },
-  { name: 'HANG SENG', val: '21,847', chg: '+1.12%', up: true },
-  { name: 'SGX NIFTY', val: '25,289', chg: '+0.28%', up: true },
-  { name: 'CRUDE OIL', val: '$74.82', chg: '-0.92%', up: false },
-  { name: 'GOLD', val: '₹75,420', chg: '+0.31%', up: true },
-  { name: 'USD/INR', val: '83.94', chg: '-0.08%', up: false },
-  { name: 'FTSE 100', val: '8,312', chg: '+0.22%', up: true },
-  { name: 'DAX', val: '19,884', chg: '+0.67%', up: true },
-  { name: 'VIX INDIA', val: '14.32', chg: '-3.21%', up: false },
-];
-
-function buildTicker() {
-  const items = [...tickerData, ...tickerData];
-  const html = items.map(d =>
-    `<span class="ticker-item">
-      <span class="name">${d.name}</span>
-      <span>${d.val}</span>
-      <span class="${d.up ? 'up' : 'dn'}">${d.up ? '▲' : '▼'} ${d.chg}</span>
-    </span>`
-  ).join('');
-  document.getElementById('ticker').innerHTML = html;
-}
-buildTicker();
-
-// ═══════════════════════════════════════════
-// TAB SWITCHER
-// ═══════════════════════════════════════════
-function switchTab(tab) {
-  document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('tab-' + tab).classList.add('active');
-}
-
-// ═══════════════════════════════════════════
-// MINI CHART GENERATOR
-// ═══════════════════════════════════════════
-function buildMiniChart(id, direction) {
-  const el = document.getElementById(id);
-  const bars = [];
-  for (let i = 0; i < 14; i++) {
-    const h = 8 + Math.random() * 22;
-    const isUp = direction === 'bull' ? Math.random() > 0.3 : Math.random() > 0.7;
-    bars.push(`<div class="bar ${isUp ? 'up' : 'dn'}" style="height:${h}px"></div>`);
-  }
-  el.innerHTML = bars.join('');
-}
-
-// ═══════════════════════════════════════════
-// GAUGE NEEDLE
-// ═══════════════════════════════════════════
-function setGauge(score) {
-  // score: 0-100, 50=neutral
-  const angle = (score / 100) * 180 - 90; // -90 to 90
-  const rad = (angle * Math.PI) / 180;
-  const cx = 90, cy = 90, len = 62;
-  const x2 = cx + Math.sin(rad) * -len;
-  const y2 = cy - Math.cos(rad) * len;
-  document.getElementById('needle').setAttribute('x2', x2.toFixed(1));
-  document.getElementById('needle').setAttribute('y2', y2.toFixed(1));
-
-  let label, color;
-  if (score >= 70) { label = 'BULLISH 🐂'; color = 'var(--green)'; }
-  else if (score >= 55) { label = 'MILD BULL 📈'; color = 'var(--green-dim)'; }
-  else if (score >= 45) { label = 'NEUTRAL ↔️'; color = 'var(--amber)'; }
-  else if (score >= 30) { label = 'MILD BEAR 📉'; color = 'var(--red-dim)'; }
-  else { label = 'BEARISH 🐻'; color = 'var(--red)'; }
-
-  document.getElementById('sent-label').textContent = label;
-  document.getElementById('sent-label').style.color = color;
-  document.getElementById('sent-score').textContent = `Score: ${score}/100`;
-
-  const tag = document.getElementById('sent-tag');
-  tag.textContent = score >= 55 ? 'BULLISH' : score >= 45 ? 'NEUTRAL' : 'BEARISH';
-  tag.className = 'tag ' + (score >= 55 ? 'bull' : score >= 45 ? '' : 'bear');
-}
-
-// ═══════════════════════════════════════════
-// POPULATE FORECAST DATA
-// ═══════════════════════════════════════════
-function populateForecast(data) {
-  // Sensex
-  const sc = data.sensex_current;
-  document.getElementById('sensex-current').textContent = `Current: ₹${sc.toLocaleString('en-IN')}`;
-  document.getElementById('s-up').textContent = `₹${data.sensex_upside.toLocaleString('en-IN')}`;
-  document.getElementById('s-dn').textContent = `₹${data.sensex_downside.toLocaleString('en-IN')}`;
-  const supPct = (((data.sensex_upside - sc)/sc)*100).toFixed(2);
-  const sdnPct = (((data.sensex_downside - sc)/sc)*100).toFixed(2);
-  document.getElementById('s-up-pct').textContent = `+${supPct}%`;
-  document.getElementById('s-dn-pct').textContent = `${sdnPct}%`;
-  document.getElementById('s-res').textContent = `₹${data.sensex_resistance.toLocaleString('en-IN')}`;
-  document.getElementById('s-sup').textContent = `₹${data.sensex_support.toLocaleString('en-IN')}`;
-  document.getElementById('s-conf').textContent = data.sensex_confidence + '%';
-  document.getElementById('s-conf-bar').style.width = data.sensex_confidence + '%';
-  const stag = document.getElementById('sensex-tag');
-  stag.textContent = data.sensex_bias;
-  stag.className = 'tag ' + (data.sensex_bias === 'BULLISH' ? 'bull' : data.sensex_bias === 'BEARISH' ? 'bear' : '');
-  buildMiniChart('s-chart', data.sensex_bias === 'BULLISH' ? 'bull' : 'bear');
-
-  // Nifty
-  const nc = data.nifty_current;
-  document.getElementById('nifty-current').textContent = `Current: ₹${nc.toLocaleString('en-IN')}`;
-  document.getElementById('n-up').textContent = `₹${data.nifty_upside.toLocaleString('en-IN')}`;
-  document.getElementById('n-dn').textContent = `₹${data.nifty_downside.toLocaleString('en-IN')}`;
-  const nupPct = (((data.nifty_upside - nc)/nc)*100).toFixed(2);
-  const ndnPct = (((data.nifty_downside - nc)/nc)*100).toFixed(2);
-  document.getElementById('n-up-pct').textContent = `+${nupPct}%`;
-  document.getElementById('n-dn-pct').textContent = `${ndnPct}%`;
-  document.getElementById('n-res').textContent = `₹${data.nifty_resistance.toLocaleString('en-IN')}`;
-  document.getElementById('n-sup').textContent = `₹${data.nifty_support.toLocaleString('en-IN')}`;
-  document.getElementById('n-conf').textContent = data.nifty_confidence + '%';
-  document.getElementById('n-conf-bar').style.width = data.nifty_confidence + '%';
-  const ntag = document.getElementById('nifty-tag');
-  ntag.textContent = data.nifty_bias;
-  ntag.className = 'tag ' + (data.nifty_bias === 'BULLISH' ? 'bull' : data.nifty_bias === 'BEARISH' ? 'bear' : '');
-  buildMiniChart('n-chart', data.nifty_bias === 'BULLISH' ? 'bull' : 'bear');
-
-  // Sentiment
-  setGauge(data.sentiment_score);
-
-  // Stats
-  document.getElementById('stat-bull').textContent = data.bullish_signals;
-  document.getElementById('stat-bear').textContent = data.bearish_signals;
-  document.getElementById('stat-global').textContent = data.positive_global + '/10';
-  document.getElementById('stat-news').textContent = data.news_scanned + '+';
-
-  // Global Markets Table
-  const tbody = document.getElementById('markets-body');
-  tbody.innerHTML = data.global_markets.map(m => `
-    <tr>
-      <td><div class="market-name">${m.name}</div><div class="market-country">${m.country}</div></td>
-      <td class="${m.change >= 0 ? 'val-up' : 'val-dn'}">${m.change >= 0 ? '▲' : '▼'} ${Math.abs(m.change)}%</td>
-      <td><span class="tag ${m.impact === 'BULLISH' ? 'bull' : m.impact === 'BEARISH' ? 'bear' : ''}" style="font-size:8px">${m.impact}</span></td>
-    </tr>
-  `).join('');
-
-  // F&O Levels
-  document.getElementById('fno-content').innerHTML = `
-    <div class="fno-section">
-      <div class="fno-title">NIFTY F&O LEVELS</div>
-      <div class="level-row"><span class="level-type">CALL Resistance</span><span class="level-val level-call">${data.nifty_call_resistance}</span></div>
-      <div class="level-row"><span class="level-type">Max Pain</span><span class="level-val level-target">${data.nifty_max_pain}</span></div>
-      <div class="level-row"><span class="level-type">PUT Support</span><span class="level-val level-put">${data.nifty_put_support}</span></div>
-      <div class="level-row"><span class="level-type">BUY Above</span><span class="level-val level-call">${data.nifty_buy_above}</span></div>
-      <div class="level-row"><span class="level-type">SELL Below</span><span class="level-val level-put">${data.nifty_sell_below}</span></div>
-      <div class="level-row"><span class="level-type">Stop Loss (Long)</span><span class="level-val level-sl">${data.nifty_sl_long}</span></div>
-      <div class="level-row"><span class="level-type">Stop Loss (Short)</span><span class="level-val level-sl">${data.nifty_sl_short}</span></div>
-    </div>
-    <div class="fno-section">
-      <div class="fno-title">SENSEX F&O LEVELS</div>
-      <div class="level-row"><span class="level-type">CALL Resistance</span><span class="level-val level-call">${data.sensex_call_resistance}</span></div>
-      <div class="level-row"><span class="level-type">Max Pain</span><span class="level-val level-target">${data.sensex_max_pain}</span></div>
-      <div class="level-row"><span class="level-type">PUT Support</span><span class="level-val level-put">${data.sensex_put_support}</span></div>
-      <div class="level-row"><span class="level-type">BUY Above</span><span class="level-val level-call">${data.sensex_buy_above}</span></div>
-      <div class="level-row"><span class="level-type">SELL Below</span><span class="level-val level-put">${data.sensex_sell_below}</span></div>
-      <div class="level-row"><span class="level-type">Stop Loss (Long)</span><span class="level-val level-sl">${data.sensex_sl_long}</span></div>
-      <div class="level-row"><span class="level-type">Stop Loss (Short)</span><span class="level-val level-sl">${data.sensex_sl_short}</span></div>
-    </div>
-  `;
-
-  // News
-  document.getElementById('news-grid').innerHTML = data.news_items.map(n => `
-    <div class="news-card">
-      <div class="news-source">${n.source}</div>
-      <div class="news-headline">${n.headline}</div>
-      <span class="news-impact impact-${n.impact.toLowerCase()}">${n.impact} FOR MARKET</span>
-    </div>
-  `).join('');
-
-  // Strategy
-  document.getElementById('strategy-output').innerHTML = `<pre style="font-family:var(--mono);font-size:11px;line-height:1.9;color:var(--text-dim);white-space:pre-wrap">${data.strategy}</pre>`;
-
-  document.getElementById('last-updated').textContent = 'Last Updated: ' + new Date().toLocaleTimeString('en-IN', {timeZone:'Asia/Kolkata'}) + ' IST';
-}
-
-// ═══════════════════════════════════════════
-// LOCAL DATA GENERATOR ALGORITHM
-// ═══════════════════════════════════════════
-function generateLocalForecast() {
-  const baseSensex = 82948;
-  const baseNifty = 25217;
-  
-  // Creates a realistic dynamic variation
-  const drift = (Math.sin(Date.now() / 86400000) * 0.5 + 0.5) * 0.02;
-  const volatility = 0.006 + (Math.random() - 0.5) * 0.003;
-  const sentimentScore = Math.round(50 + drift * 100 + (Math.random() - 0.5) * 10);
-  const bias = sentimentScore >= 55 ? 'BULLISH' : sentimentScore >= 45 ? 'NEUTRAL' : 'BEARISH';
-
-  const sensexMove = Math.round(baseSensex * (0.004 + volatility * (bias === 'BULLISH' ? 1 : bias === 'BEARISH' ? -1 : 0.5)));
-  const niftyMove = Math.round(baseNifty * (0.004 + volatility * (bias === 'BULLISH' ? 1 : bias === 'BEARISH' ? -1 : 0.5)));
-
-  const sensexCurrent = baseSensex;
-  const niftyCurrent = baseNifty;
-  const sensexUpside = sensexCurrent + Math.abs(sensexMove * (bias === 'BEARISH' ? 0.8 : 1.1));
-  const sensexDownside = sensexCurrent - Math.abs(sensexMove * (bias === 'BULLISH' ? 0.8 : 1.1));
-  const niftyUpside = niftyCurrent + Math.abs(niftyMove * (bias === 'BEARISH' ? 0.8 : 1.1));
-  const niftyDownside = niftyCurrent - Math.abs(niftyMove * (bias === 'BULLISH' ? 0.8 : 1.1));
-
-  return {
-    sensex_current: sensexCurrent,
-    sensex_upside: sensexUpside,
-    sensex_downside: sensexDownside,
-    sensex_resistance: sensexUpside + 200,
-    sensex_support: sensexDownside - 200,
-    sensex_confidence: Math.min(95, Math.max(40, sentimentScore)),
-    sensex_bias: bias,
-    sensex_call_resistance: String(sensexUpside + 150),
-    sensex_put_support: String(sensexDownside - 150),
-    sensex_max_pain: String(Math.round((sensexCurrent + sensexUpside) / 2)),
-    sensex_buy_above: String(sensexCurrent + 160),
-    sensex_sell_below: String(sensexCurrent - 160),
-    sensex_sl_long: String(sensexCurrent - 200),
-    sensex_sl_short: String(sensexCurrent + 200),
-    nifty_current: niftyCurrent,
-    nifty_upside: niftyUpside,
-    nifty_downside: niftyDownside,
-    nifty_resistance: niftyUpside + 75,
-    nifty_support: niftyDownside - 75,
-    nifty_confidence: Math.min(95, Math.max(40, sentimentScore - 3)),
-    nifty_bias: bias,
-    nifty_call_resistance: String(niftyUpside + 70),
-    nifty_put_support: String(niftyDownside - 70),
-    nifty_max_pain: String(Math.round((niftyCurrent + niftyUpside) / 2)),
-    nifty_buy_above: String(niftyCurrent + 75),
-    nifty_sell_below: String(niftyCurrent - 75),
-    nifty_sl_long: String(niftyCurrent - 90),
-    nifty_sl_short: String(niftyCurrent + 90),
-    sentiment_score: sentimentScore,
-    bullish_signals: bias === 'BULLISH' ? 8 : bias === 'NEUTRAL' ? 5 : 3,
-    bearish_signals: bias === 'BEARISH' ? 7 : 2,
-    positive_global: bias === 'BULLISH' ? 7 : bias === 'BEARISH' ? 3 : 5,
-    news_scanned: 24,
-    global_markets: [
-      { name: 'DOW JONES', country: 'USA', change: 0.28, impact: 'BULLISH' },
-      { name: 'S&P 500', country: 'USA', change: 0.41, impact: 'BULLISH' },
-      { name: 'NASDAQ', country: 'USA', change: 0.55, impact: 'BULLISH' },
-      { name: 'NIKKEI 225', country: 'JAPAN', change: -0.63, impact: 'BEARISH' },
-      { name: 'HANG SENG', country: 'HONG KONG', change: 1.12, impact: 'BULLISH' },
-      { name: 'SGX NIFTY', country: 'SINGAPORE', change: bias === 'BULLISH' ? 0.28 : bias === 'BEARISH' ? -0.15 : 0.05, impact: bias === 'BULLISH' ? 'BULLISH' : bias === 'BEARISH' ? 'BEARISH' : 'NEUTRAL' },
-      { name: 'CRUDE OIL', country: 'GLOBAL', change: bias === 'BULLISH' ? -0.45 : 0.32, impact: bias === 'BULLISH' ? 'BULLISH' : 'BEARISH' },
-      { name: 'USD/INR', country: 'INDIA', change: bias === 'BULLISH' ? -0.12 : 0.15, impact: bias === 'BULLISH' ? 'BULLISH' : 'BEARISH' },
-    ],
-    news_items: [
-      { source: 'ET MARKETS', headline: 'Domestic markets remain steady ahead of expiry', impact: bias === 'BULLISH' ? 'BULLISH' : 'NEUTRAL' },
-      { source: 'REUTERS', headline: 'Global strength supports India equities', impact: bias === 'BULLISH' ? 'BULLISH' : 'NEUTRAL' },
-      { source: 'CNBC TV18', headline: 'Caution advised on crude and INR momentum', impact: bias === 'BEARISH' ? 'BEARISH' : 'NEUTRAL' },
-    ],
-    analysis_text: `DETAILED MARKET ANALYSIS SUMMARY:\\n\\nThe market structure currently shows a ${bias.toLowerCase()} stance for tomorrow based on global cues and domestic momentum. SGX Nifty indicates a ${bias === 'BULLISH' ? 'positive' : bias === 'BEARISH' ? 'negative' : 'neutral'} opening. \\n\\nKey factors to watch:\\n1. Global Markets: US indices are showing strength, providing a solid base.\\n2. Sector Rotation: Expect activity in banking and IT sectors depending on the early morning trend.\\n3. F&O Data: Options data points to strong resistance at upper levels, suggesting cautious trading.\\n\\nNote: This is an AI-simulated mathematical forecast. Always verify with actual broker charts before taking trades.`,
-    strategy: `TRADING STRATEGY FOR TOMORROW:\\n\\nNIFTY STRATEGY:\\n→ BUY above ${niftyCurrent + 75}: Target ${niftyUpside} / ${niftyUpside + 75}, SL ${niftyCurrent - 75}\\n→ SELL below ${niftyCurrent - 75}: Target ${niftyDownside} / ${niftyDownside - 75}, SL ${niftyCurrent + 70}\\n\\nSENSEX STRATEGY:\\n→ BUY above ${sensexCurrent + 160}: Target ${sensexUpside} / ${sensexUpside + 160}, SL ${sensexCurrent - 160}\\n→ SELL below ${sensexCurrent - 160}: Target ${sensexDownside} / ${sensexDownside - 160}, SL ${sensexCurrent + 155}\\n\\n⚠️ Remember: Markets can reverse on news. Always use stop losses.`
-  };
-}
-
-
-// ═══════════════════════════════════════════
-// MAIN ANALYSIS FUNCTION (FIXED FOR GITHUB PAGES)
-// ═══════════════════════════════════════════
-async function runAnalysis() {
-  const btn = document.getElementById('analyzeBtn');
-  const thinking = document.getElementById('thinking');
-  const output = document.getElementById('analysis-output');
-
-  btn.disabled = true;
-  btn.innerHTML = '<span class="btn-icon">⏳</span> ANALYZING GLOBAL MARKETS...';
-  thinking.classList.add('show');
-
-  const statuses = [
-    '🌐 Scanning global markets — Dow, S&P, Nasdaq...',
-    '🇯🇵 Checking Nikkei, SGX Nifty, Hang Seng...',
-    '📰 Analyzing financial news from Reuters, Bloomberg...',
-    '🇮🇳 Studying India-specific economic data...',
-    '📊 Calculating F&O support & resistance levels...',
-    '🔮 Generating AI forecast for tomorrow...',
-  ];
-  let si = 0;
-  const statusInterval = setInterval(() => {
-    if (si < statuses.length) {
-      document.getElementById('think-status').textContent = statuses[si++];
-    }
-  }, 3000);
-
-  // Fake delay of 5.5 seconds to simulate AI thinking time perfectly
-  await new Promise(resolve => setTimeout(resolve, 5500));
-  
-  clearInterval(statusInterval);
-  
-  try {
-    // Calling the local math algorithm instead of the blocked Claude API
-    const parsed = generateLocalForecast();
-
-    // Updating the UI
-    populateForecast(parsed);
-
-    // Showing the text and strategy in their respective tabs
-    output.innerHTML = `<pre style="font-family:var(--mono);font-size:11px;line-height:1.9;color:var(--text-dim);white-space:pre-wrap">${parsed.analysis_text.replace(/\\n/g, '\n')}</pre>`;
-    document.getElementById('strategy-output').innerHTML = `<pre style="font-family:var(--mono);font-size:11px;line-height:1.9;color:var(--text-dim);white-space:pre-wrap">${parsed.strategy.replace(/\\n/g, '\n')}</pre>`;
-
-  } catch (err) {
-    output.innerHTML = `<span style="color:var(--red);font-family:var(--mono);font-size:11px">Error: ${err.message}</span>`;
-  }
-
-  thinking.classList.remove('show');
-  btn.disabled = false;
-  btn.innerHTML = '<span class="btn-icon">🔮</span> RUN AI ANALYSIS — MARKET FORECAST';
-  document.getElementById('think-status').textContent = 'Simulation complete.';
-}
-
-// Init
-buildMiniChart('s-chart', 'bull');
-buildMiniChart('n-chart', 'bull');
-setGauge(50);
-</script>
-</body>
-</html>
+        <div id
