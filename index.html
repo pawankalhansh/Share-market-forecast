@@ -470,4 +470,134 @@
       </div>
 
       <div class="ai-content">
-        <div id
+        <div id="tab-analysis" class="tab-pane active">
+          <div class="ai-output" id="analysis-output">
+<span style="color:var(--text-muted)">╔══════════════════════════════════════════╗
+║     MARKET ORACLE — FORECAST SIMULATOR   ║
+║          Math & Algorithm Based          ║
+╚══════════════════════════════════════════╝
+
+▶ Click "RUN AI ANALYSIS" button below to:
+  → Fetch LIVE Nifty 50 and Sensex Price
+  → Load global market data algorithms
+  → Generate Sensex & Nifty Forecast
+  → Calculate Technical F&O Levels
+  → Display Sector Watch & Strategy
+
+System uses Yahoo Finance API proxies to 
+get real-time Indian Index prices and 
+calculates smart F&O levels based on them.
+
+ℹ️  NOTE: This is an educational 
+    simulation, not real financial advice!</span>
+          </div>
+        </div>
+
+        <div id="tab-fno" class="tab-pane">
+          <div class="fno-grid" id="fno-content">
+            <div style="grid-column:span 2;text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:11px;padding:40px 0">
+              Run AI Analysis to see F&O levels...
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-news" class="tab-pane">
+          <div class="news-grid" id="news-grid">
+            <div style="grid-column:span 3;text-align:center;color:var(--text-muted);font-family:var(--mono);font-size:11px;padding:40px 0">
+              Run AI Analysis to load news impact...
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-strategy" class="tab-pane">
+          <div class="ai-output" id="strategy-output">
+            <span style="color:var(--text-muted)">Run AI Analysis to get trading strategy...</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 0 20px 20px">
+        <div style="text-align:center;margin-bottom:8px;">
+          <label style="color:var(--text-muted);font-family:var(--mono);font-size:12px;"><input type="checkbox" id="liveToggle" checked style="margin-right:8px"> Use Live NSE/BSE Data</label>
+        </div>
+        <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">
+          <span class="btn-icon">🔮</span>
+          RUN AI ANALYSIS — MARKET FORECAST
+        </button>
+        <div style="text-align:center;font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:10px;letter-spacing:1px">
+          ⚠️ DISCLAIMER: Simulation-generated forecast | Not SEBI-registered investment advice | Trade at your own risk
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer-bar">
+  <span>MARKET ORACLE © 2025 | Mathematical Forecasting | Live + Simulation Data</span>
+  <span id="last-updated">Last Updated: Never</span>
+  <span>FOR EDUCATIONAL PURPOSE ONLY | NOT INVESTMENT ADVICE</span>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const h = String(ist.getHours()).padStart(2,'0');
+  const m = String(ist.getMinutes()).padStart(2,'0');
+  const s = String(ist.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s} IST`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ═══════════════════════════════════════════
+// TICKER DATA
+// ═══════════════════════════════════════════
+let tickerData = [
+  { name: 'SENSEX', val: '78,200', chg: '+0.00%', up: true },
+  { name: 'NIFTY 50', val: '23,644', chg: '+0.00%', up: true },
+  { name: 'BANK NIFTY', val: '54,186', chg: '-0.12%', up: false },
+  { name: 'DOW JONES', val: '43,828', chg: '+0.28%', up: true },
+  { name: 'S&P 500', val: '5,958', chg: '+0.41%', up: true },
+  { name: 'NASDAQ', val: '19,310', chg: '+0.55%', up: true },
+  { name: 'NIKKEI 225', val: '38,236', chg: '-0.63%', up: false },
+  { name: 'HANG SENG', val: '21,847', chg: '+1.12%', up: true },
+  { name: 'SGX NIFTY', val: '23,750', chg: '+0.28%', up: true },
+  { name: 'CRUDE OIL', val: '$74.82', chg: '-0.92%', up: false },
+  { name: 'GOLD', val: '₹75,420', chg: '+0.31%', up: true },
+  { name: 'USD/INR', val: '83.94', chg: '-0.08%', up: false },
+];
+
+function buildTicker() {
+  const items = [...tickerData, ...tickerData];
+  const html = items.map(d =>
+    `<span class="ticker-item">
+      <span class="name">${d.name}</span>
+      <span>${d.val}</span>
+      <span class="${d.up ? 'up' : 'dn'}">${d.up ? '▲' : '▼'} ${d.chg}</span>
+    </span>`
+  ).join('');
+  document.getElementById('ticker').innerHTML = html;
+}
+buildTicker();
+
+// ═══════════════════════════════════════════
+// TAB SWITCHER & GAUGES
+// ═══════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function buildMiniChart(id, direction) {
+  const el = document.getElementById(id);
+  const bars = [];
+  for (let i = 0; i < 14; i++) {
+    const h = 8 +
