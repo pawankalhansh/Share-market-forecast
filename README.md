@@ -18,4 +18,4 @@ The published site should be:
 
 ## Notes
 - The page is a static HTML dashboard based on your original Market Oracle design.
-- The `RUN AI ANALYSIS` button currently attempts to call an external Claude AI endpoint and may not work without backend support.
+- The `RUN MARKET ANALYSIS` button now uses a local forecast simulation and does not require the Claude API.
