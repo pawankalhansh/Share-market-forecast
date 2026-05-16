@@ -1312,39 +1312,49 @@ const FINNHUB_API_KEY = 'd846tjpr01qutij857lgd846tjpr01qutij857m0';
 // ═══════════════════════════════════════════
 
 async function fetchLiveMarketData() {
-    const sym = '^NSEI'; // Nifty 50 on Yahoo Finance
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=1d`;
+    const sym = '^NSEI'; // Nifty 50
+    
+    // v7 spark API is much lighter and rarely gets blocked by Yahoo
+    const url = `https://query1.finance.yahoo.com/v7/finance/spark?symbols=${encodeURIComponent(sym)}&range=1d&interval=1m`;
 
-    // 3 Best Proxies (codetabs sabse reliable hai)
+    // 4 Different Proxy Strategies (Agar ek block ho toh dusra kaam kare)
     const proxies = [
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, // /get bypasses strict browser CORS entirely
         `https://corsproxy.io/?${encodeURIComponent(url)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        `https://thingproxy.freeboard.io/fetch/${url}`
     ];
 
     for (const proxyUrl of proxies) {
         try {
             const res = await fetch(proxyUrl);
             if (res.ok) {
-                const data = await res.json();
-                const meta = data?.chart?.result?.[0]?.meta;
+                let data = await res.json();
+                
+                // Handle allorigins '/get' wrapper
+                if (data && data.contents) {
+                    try { data = JSON.parse(data.contents); } catch(e) {}
+                }
+
+                // Extract price from Yahoo Spark API structure
+                const meta = data?.spark?.result?.[0]?.response?.[0]?.meta || data?.spark?.result?.[0]?.meta;
                 
                 if (meta && meta.regularMarketPrice) {
-                    console.log("Live data fetched successfully!");
+                    console.log("Live data fetched successfully via:", proxyUrl);
                     return {
                         symbol: 'NIFTY 50',
                         quote: {
                             regularMarketPrice: meta.regularMarketPrice,
-                            regularMarketPreviousClose: meta.chartPreviousClose || meta.regularMarketPrice
+                            regularMarketPreviousClose: meta.previousClose || meta.chartPreviousClose || meta.regularMarketPrice
                         }
                     };
                 }
             }
         } catch (e) {
-            console.warn("Proxy blocked, trying next...");
+            console.warn("Proxy failed, trying next proxy...", proxyUrl);
         }
     }
-    throw new Error('All CORS proxies failed to fetch Live Data.');
+    throw new Error('All CORS proxies failed to fetch Live Data. (Might be blocked by ISP)');
 }
 
 // Normalize different quote shapes (Finnhub or Yahoo) into common fields
