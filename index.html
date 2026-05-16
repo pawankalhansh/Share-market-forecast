@@ -33,28 +33,52 @@
     --btn-grad-2: #14143a;
   }
 
-  /* ☀️ LIGHT THEME */
+  /* ☀️ LIGHT THEME — Premium Ivory */
   [data-theme="light"] {
-    --bg: #f0f4ff;
-    --surface: #ffffff;
-    --surface2: #e8edf8;
-    --border: #c8d0e8;
-    --green: #059669;
-    --green-dim: #10b981;
-    --red: #e11d48;
-    --red-dim: #f43f5e;
-    --amber: #d97706;
-    --blue: #2563eb;
-    --purple: #7c3aed;
-    --text: #1e1e3a;
-    --text-dim: #4a5578;
-    --text-muted: #8892b0;
+    --bg: #f5f0e8;
+    --surface: #fffdf7;
+    --surface2: #ede8dc;
+    --border: #c8bfa8;
+    --green: #0a7c4e;
+    --green-dim: #0d9160;
+    --red: #c0152d;
+    --red-dim: #e0294a;
+    --amber: #b45309;
+    --blue: #1d4ed8;
+    --purple: #6d28d9;
+    --text: #1a1400;
+    --text-dim: #3d3520;
+    --text-muted: #7a6e58;
     --glow-green: none;
     --glow-red: none;
     --glow-amber: none;
-    --header-bg: rgba(255,255,255,0.97);
-    --btn-grad-1: #e8edf8;
-    --btn-grad-2: #f0f4ff;
+    --header-bg: rgba(255,253,247,0.98);
+    --btn-grad-1: #ede8dc;
+    --btn-grad-2: #f5f0e8;
+  }
+
+  /* 💚 MATRIX THEME — Green Terminal */
+  [data-theme="matrix"] {
+    --bg: #000800;
+    --surface: #001200;
+    --surface2: #001a00;
+    --border: #003300;
+    --green: #00ff41;
+    --green-dim: #00cc34;
+    --red: #ff3300;
+    --red-dim: #cc2900;
+    --amber: #aaff00;
+    --blue: #00ffaa;
+    --purple: #88ff00;
+    --text: #00ff41;
+    --text-dim: #00aa2b;
+    --text-muted: #006618;
+    --glow-green: 0 0 20px rgba(0,255,65,0.5);
+    --glow-red: 0 0 20px rgba(255,51,0,0.5);
+    --glow-amber: 0 0 20px rgba(170,255,0,0.5);
+    --header-bg: rgba(0,8,0,0.97);
+    --btn-grad-1: #001200;
+    --btn-grad-2: #001a00;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -479,10 +503,10 @@
     </div>
 
     <div class="ai-tabs">
-      <button class="ai-tab active" onclick="switchTab('analysis')">🧠 AI ANALYSIS</button>
-      <button class="ai-tab" onclick="switchTab('fno')">📊 F&O LEVELS</button>
-      <button class="ai-tab" onclick="switchTab('news')">🌐 NEWS IMPACT</button>
-      <button class="ai-tab" onclick="switchTab('strategy')">🎯 TRADING STRATEGY</button>
+      <button class="ai-tab active" onclick="switchTab('analysis',this)">🧠 AI ANALYSIS</button>
+      <button class="ai-tab" onclick="switchTab('fno',this)">📊 F&O LEVELS</button>
+      <button class="ai-tab" onclick="switchTab('news',this)">🌐 NEWS IMPACT</button>
+      <button class="ai-tab" onclick="switchTab('strategy',this)">🎯 TRADING STRATEGY</button>
     </div>
 
     <div class="ai-body">
@@ -573,22 +597,31 @@ to ensure 100% Guaranteed Uptime & Bypass CORS.
 // ═══════════════════════════════════════════
 // THEME SWITCHER
 // ═══════════════════════════════════════════
+const THEMES = [
+  { key: 'dark',   label: '🌌 Dark' },
+  { key: 'light',  label: '☀️ Light' },
+  { key: 'matrix', label: '💚 Matrix' }
+];
 function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme') || 'dark';
-  const next = current === 'light' ? 'dark' : 'light';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('mo-theme', next);
-  document.getElementById('theme-btn').innerHTML = next === 'light' ? '🌙 Dark' : '☀️ Light';
+  const idx = THEMES.findIndex(t => t.key === current);
+  const next = THEMES[(idx + 1) % THEMES.length];
+  document.documentElement.setAttribute('data-theme', next.key);
+  localStorage.setItem('mo-theme', next.key);
+  const nextNext = THEMES[(THEMES.findIndex(t => t.key === next.key) + 1) % THEMES.length];
+  document.getElementById('theme-btn').innerHTML = nextNext.label;
 }
 (function(){
-  const saved = localStorage.getItem('mo-theme');
-  if (saved === 'light') {
-    document.documentElement.setAttribute('data-theme', 'light');
-    document.addEventListener('DOMContentLoaded', () => {
-      const btn = document.getElementById('theme-btn');
-      if(btn) btn.innerHTML = '🌙 Dark';
-    });
-  }
+  const saved = localStorage.getItem('mo-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('theme-btn');
+    if(btn) {
+      const idx = THEMES.findIndex(t => t.key === saved);
+      const nextNext = THEMES[(idx + 1) % THEMES.length];
+      btn.innerHTML = nextNext.label;
+    }
+  });
 })();
 
 // ═══════════════════════════════════════════
@@ -636,10 +669,10 @@ buildTicker();
 // ═══════════════════════════════════════════
 // TAB SWITCHER & GAUGES
 // ═══════════════════════════════════════════
-function switchTab(tab) {
+function switchTab(tab, el) {
   document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  event.target.classList.add('active');
+  el.classList.add('active');
   document.getElementById('tab-' + tab).classList.add('active');
 }
 
