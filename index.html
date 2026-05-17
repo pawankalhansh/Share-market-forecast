@@ -2396,10 +2396,13 @@
     const KEY_PART_1 = 'AIzaSyD0c2DG6aU4U'; // First half of your new key
     const KEY_PART_2 = 'ogGEkqzEYazwXNM9tjCxhE'; // Second half of your new key
     const GEMINI_KEY = KEY_PART_1 + KEY_PART_2;
+    let chatHistory = [];
+
     function toggleChat() {
       const w = document.getElementById('chat-window');
       w.classList.toggle('show');
     }
+
     async function sendChat() {
       const input = document.getElementById('chat-input');
       const msg = input.value.trim();
@@ -2410,40 +2413,96 @@
       input.value = '';
       msgs.scrollTop = msgs.scrollHeight;
 
-      // Show typing indicator
       const typingId = 'typing-' + Date.now();
       msgs.innerHTML += `<div class="chat-typing" id="${typingId}">AI is thinking...</div>`;
       msgs.scrollTop = msgs.scrollHeight;
 
       if (GEMINI_KEY === 'YOUR_GEMINI_API_KEY') {
         document.getElementById(typingId)?.remove();
-        msgs.innerHTML += `<div class="chat-msg bot">⚠️ Gemini API key set nahi hai. Apna API key <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--blue)">Google AI Studio</a> se le kar code mein GEMINI_KEY mein paste karo. Free hai!</div>`;
-        msgs.scrollTop = msgs.scrollHeight;
+        msgs.innerHTML += `<div class="chat-msg bot">⚠️ Gemini API key set nahi hai.</div>`;
         return;
       }
 
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: "You are Market Oracle AI, a highly intelligent Indian stock market expert assistant. Answer in Hinglish. Provide detailed, helpful, and logical answers. Explain concepts clearly with examples. When asked about market predictions or specific stocks, provide educational analysis, support/resistance levels logic, or general market sentiment factors (like global cues, FII data) instead of just refusing. Always add a short disclaimer at the end." }] },
-              contents: [{ parts: [{ text: msg }] }],
-              generationConfig: { maxOutputTokens: 800, temperature: 0.6 }
-            })
-          }
-        );
-        const data = await response.json();
-        document.getElementById(typingId)?.remove();
+      chatHistory.push({ role: "user", parts: [{ text: msg }] });
 
-        if (data.error) {
-          msgs.innerHTML += `<div class="chat-msg bot" style="color:var(--red)">API Error: ${data.error.message}</div>`;
-        } else {
-          const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, kuch problem aa gayi. Dobara try karo!';
-          msgs.innerHTML += `<div class="chat-msg bot">${reply}</div>`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;
+      const sysInst = "You are Market Oracle AI, a highly intelligent global stock market expert assistant. Answer in Hinglish. You have access to real-time market data. Always fetch live data using your tool before answering questions about specific stocks, indices, or markets. Analyze the fetched data (Price, Change, Currency) and explain it logically. Add a short disclaimer at the end.";
+
+      const requestBody = {
+        system_instruction: { parts: [{ text: sysInst }] },
+        contents: chatHistory,
+        tools: [{
+          functionDeclarations: [{
+            name: "get_live_stock_data",
+            description: "Search for a company/stock and fetch its real-time market price and data.",
+            parameters: {
+              type: "OBJECT",
+              properties: { query: { type: "STRING", description: "Company name or stock symbol (e.g. Reliance, AAPL, Nifty)" } },
+              required: ["query"]
+            }
+          }]
+        }],
+        generationConfig: { maxOutputTokens: 2000, temperature: 0.6 }
+      };
+
+      try {
+        let response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
+        let data = await response.json();
+        
+        if (data.error) throw new Error(data.error.message);
+        let message = data.candidates?.[0]?.content;
+        
+        // Handle Tool Calling (Fetching Live Data)
+        if (message && message.parts && message.parts[0].functionCall) {
+          const fn = message.parts[0].functionCall;
+          if (fn.name === "get_live_stock_data") {
+            chatHistory.push(message); // Save AI's function request
+            document.getElementById(typingId).innerText = `Fetching live data for ${fn.args.query}...`;
+            
+            // 1. Search for symbol
+            const PROXY = 'https://market-proxy.pawankalhansh.workers.dev/?url=';
+            let searchUrl = PROXY + encodeURIComponent(`https://query2.finance.yahoo.com/v1/finance/search?q=${fn.args.query}&quotesCount=1`);
+            let searchRes = await fetch(searchUrl);
+            let searchData = await searchRes.json();
+            
+            let stockInfo = "Stock not found. Tell user data is unavailable.";
+            if (searchData.quotes && searchData.quotes.length > 0) {
+              let sym = searchData.quotes[0].symbol;
+              // 2. Fetch live quote
+              let chartUrl = PROXY + encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?range=1d&interval=1d`);
+              let chartRes = await fetch(chartUrl);
+              let chartData = await chartRes.json();
+              let meta = chartData.chart?.result?.[0]?.meta;
+              if (meta) {
+                stockInfo = `Symbol: ${sym}, Live Price: ${meta.regularMarketPrice}, Previous Close: ${meta.chartPreviousClose}, Currency: ${meta.currency}, Exchange: ${meta.exchangeName}`;
+              }
+            }
+
+            // Provide data back to AI
+            chatHistory.push({
+              role: "function",
+              parts: [{ functionResponse: { name: "get_live_stock_data", response: { name: "get_live_stock_data", content: stockInfo } } }]
+            });
+
+            // Call AI again for final answer
+            response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+              system_instruction: { parts: [{ text: sysInst }] },
+              contents: chatHistory,
+              generationConfig: { maxOutputTokens: 2000, temperature: 0.6 }
+            })});
+            data = await response.json();
+            if (data.error) throw new Error(data.error.message);
+            message = data.candidates?.[0]?.content;
+          }
         }
+
+        document.getElementById(typingId)?.remove();
+        if(message) chatHistory.push(message); // Save final text
+
+        let reply = message?.parts?.[0]?.text || 'Sorry, main answer nahi generate kar paya.';
+        reply = reply.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<i>$1</i>').replace(/\n/g, '<br>');
+        
+        msgs.innerHTML += `<div class="chat-msg bot">${reply}</div>`;
       } catch (e) {
         document.getElementById(typingId)?.remove();
         msgs.innerHTML += `<div class="chat-msg bot" style="color:var(--red)">Error: ${e.message}</div>`;
