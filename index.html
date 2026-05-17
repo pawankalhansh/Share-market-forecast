@@ -2429,9 +2429,9 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              system_instruction: { parts: [{ text: "You are Market Oracle AI, an Indian stock market expert assistant. Answer in Hindi-English mix (Hinglish). Keep answers short (2-4 sentences). Focus on: stock analysis, technical indicators (RSI, MACD, Moving Averages), Indian market (NSE/BSE), F&O trading, and market education. Always add disclaimer that this is not investment advice. Be friendly and use emojis." }] },
+              system_instruction: { parts: [{ text: "You are Market Oracle AI, a highly intelligent Indian stock market expert assistant. Answer in Hinglish. Provide detailed, helpful, and logical answers. Explain concepts clearly with examples. When asked about market predictions or specific stocks, provide educational analysis, support/resistance levels logic, or general market sentiment factors (like global cues, FII data) instead of just refusing. Always add a short disclaimer at the end." }] },
               contents: [{ parts: [{ text: msg }] }],
-              generationConfig: { maxOutputTokens: 300, temperature: 0.7 }
+              generationConfig: { maxOutputTokens: 800, temperature: 0.6 }
             })
           }
         );
