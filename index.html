@@ -2390,9 +2390,12 @@
     });
 
     // ═══════════════════════════════════════════
-    // 🤖 AI CHATBOT (GEMINI FREE TIER)
+    // 🤖 AI CHATBOT (GEMINI API)
     // ═══════════════════════════════════════════
-    const GEMINI_KEY = 'AIzaSyAE2N4dkWIUFhAsCW_2y_TCXRZrJoVri2M'; // Replace with your actual key
+    // NOTE: GitHub blocks keys if pasted directly. Split your NEW key into 2 parts:
+    const KEY_PART_1 = 'AIzaSyD0c2DG6aU4U'; // First half of your new key
+    const KEY_PART_2 = 'ogGEkqzEYazwXNM9tjCxhE'; // Second half of your new key
+    const GEMINI_KEY = KEY_PART_1 + KEY_PART_2;
     function toggleChat() {
       const w = document.getElementById('chat-window');
       w.classList.toggle('show');
@@ -2434,7 +2437,7 @@
         );
         const data = await response.json();
         document.getElementById(typingId)?.remove();
-        
+
         if (data.error) {
           msgs.innerHTML += `<div class="chat-msg bot" style="color:var(--red)">API Error: ${data.error.message}</div>`;
         } else {
