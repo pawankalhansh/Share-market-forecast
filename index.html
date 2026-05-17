@@ -2279,7 +2279,7 @@
       script.innerHTML = JSON.stringify({
         "autosize": true,
         "symbol": "BSE:SENSEX",
-        "interval": "15",
+        "interval": "D",
         "timezone": "Asia/Kolkata",
         "theme": isDark ? "dark" : "light",
         "style": "1",
@@ -2434,8 +2434,13 @@
         );
         const data = await response.json();
         document.getElementById(typingId)?.remove();
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, kuch problem aa gayi. Dobara try karo!';
-        msgs.innerHTML += `<div class="chat-msg bot">${reply}</div>`;
+        
+        if (data.error) {
+          msgs.innerHTML += `<div class="chat-msg bot" style="color:var(--red)">API Error: ${data.error.message}</div>`;
+        } else {
+          const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, kuch problem aa gayi. Dobara try karo!';
+          msgs.innerHTML += `<div class="chat-msg bot">${reply}</div>`;
+        }
       } catch (e) {
         document.getElementById(typingId)?.remove();
         msgs.innerHTML += `<div class="chat-msg bot" style="color:var(--red)">Error: ${e.message}</div>`;
