@@ -157,7 +157,7 @@ localStorage.setItem('smf-api-base', 'https://your-worker.workers.dev')
 
 ## 🤖 Built With AI
 
-This project was designed and developed using **AI** — demonstrating what AI-assisted creation looks like for non-developers in 2026.
+This project was designed and developed using **AI** demonstrating what AI-assisted creation looks like for non-developers in 2026.
 
 > *"Not replacing skills. Supercharging them."*
 
