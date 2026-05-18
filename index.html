@@ -14,77 +14,87 @@
   <style>
     /* 🌌 DARK THEME (DEFAULT) — Deep Space Indigo */
     :root {
-      --bg: #06060f;
-      --surface: #0d0d1f;
-      --surface2: #12122a;
-      --border: #1e1e42;
-      --green: #00f5a0;
-      --green-dim: #00c97d;
-      --red: #ff4466;
-      --red-dim: #cc1133;
-      --amber: #ffcc00;
-      --blue: #38bdf8;
-      --purple: #a78bfa;
-      --text: #e8eeff;
-      --text-dim: #7b8db0;
-      --text-muted: #3a3a60;
+      --bg: #080a12;
+      --surface: #111827;
+      --surface2: #172033;
+      --border: #263247;
+      --green: #2dd4bf;
+      --green-dim: #14b8a6;
+      --red: #fb7185;
+      --red-dim: #e11d48;
+      --amber: #fbbf24;
+      --blue: #60a5fa;
+      --purple: #c084fc;
+      --text: #f4f7fb;
+      --text-dim: #b6c2d3;
+      --text-muted: #7b879a;
       --mono: 'Space Mono', monospace;
       --display: 'Bebas Neue', sans-serif;
       --body: 'DM Sans', sans-serif;
-      --glow-green: 0 0 24px rgba(0, 245, 160, 0.35);
-      --glow-red: 0 0 24px rgba(255, 68, 102, 0.35);
-      --glow-amber: 0 0 24px rgba(255, 204, 0, 0.35);
-      --header-bg: rgba(6, 6, 15, 0.96);
-      --btn-grad-1: #0a0a22;
-      --btn-grad-2: #14143a;
+      --glow-green: 0 0 24px rgba(45, 212, 191, 0.28);
+      --glow-red: 0 0 24px rgba(251, 113, 133, 0.28);
+      --glow-amber: 0 0 24px rgba(251, 191, 36, 0.24);
+      --header-bg: rgba(8, 10, 18, 0.92);
+      --btn-grad-1: #122033;
+      --btn-grad-2: #20365a;
+      --panel-shadow: 0 24px 60px rgba(0, 0, 0, 0.26);
+      --bg-grad-1: rgba(96, 165, 250, 0.08);
+      --bg-grad-2: rgba(45, 212, 191, 0.06);
     }
 
     /* ☀️ LIGHT THEME — Premium Ivory */
     [data-theme="light"] {
-      --bg: #f5f0e8;
-      --surface: #fffdf7;
-      --surface2: #ede8dc;
-      --border: #c8bfa8;
-      --green: #0a7c4e;
-      --green-dim: #0d9160;
-      --red: #c0152d;
-      --red-dim: #e0294a;
+      --bg: #f6f8fb;
+      --surface: #ffffff;
+      --surface2: #edf2f7;
+      --border: #d6dee8;
+      --green: #0f766e;
+      --green-dim: #0d9488;
+      --red: #be123c;
+      --red-dim: #e11d48;
       --amber: #b45309;
-      --blue: #1d4ed8;
-      --purple: #6d28d9;
-      --text: #1a1400;
-      --text-dim: #3d3520;
-      --text-muted: #7a6e58;
+      --blue: #2563eb;
+      --purple: #7c3aed;
+      --text: #111827;
+      --text-dim: #334155;
+      --text-muted: #64748b;
       --glow-green: none;
       --glow-red: none;
       --glow-amber: none;
-      --header-bg: rgba(255, 253, 247, 0.98);
-      --btn-grad-1: #ede8dc;
-      --btn-grad-2: #f5f0e8;
+      --header-bg: rgba(255, 255, 255, 0.92);
+      --btn-grad-1: #e0f2fe;
+      --btn-grad-2: #eef2ff;
+      --panel-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+      --bg-grad-1: rgba(37, 99, 235, 0.08);
+      --bg-grad-2: rgba(15, 118, 110, 0.06);
     }
 
     /* 💚 MATRIX THEME — Green Terminal */
+    [data-theme="aurora"],
     [data-theme="matrix"] {
-      --bg: #000800;
-      --surface: #001200;
-      --surface2: #001a00;
-      --border: #003300;
-      --green: #00ff41;
-      --green-dim: #00cc34;
-      --red: #ff3300;
-      --red-dim: #cc2900;
-      --amber: #aaff00;
-      --blue: #00ffaa;
-      --purple: #88ff00;
-      --text: #00ff41;
-      --text-dim: #00aa2b;
-      --text-muted: #006618;
-      --glow-green: 0 0 20px rgba(0, 255, 65, 0.5);
-      --glow-red: 0 0 20px rgba(255, 51, 0, 0.5);
-      --glow-amber: 0 0 20px rgba(170, 255, 0, 0.5);
-      --header-bg: rgba(0, 8, 0, 0.97);
-      --btn-grad-1: #001200;
-      --btn-grad-2: #001a00;
+      --bg: #09111f;
+      --surface: #0f1b2d;
+      --surface2: #17243a;
+      --border: #2a3a52;
+      --green: #34d399;
+      --green-dim: #10b981;
+      --red: #f43f5e;
+      --red-dim: #e11d48;
+      --amber: #f59e0b;
+      --blue: #22d3ee;
+      --purple: #a78bfa;
+      --text: #ecfeff;
+      --text-dim: #a7c6d9;
+      --text-muted: #6f8ca3;
+      --glow-green: 0 0 22px rgba(52, 211, 153, 0.28);
+      --glow-red: 0 0 22px rgba(244, 63, 94, 0.24);
+      --glow-amber: 0 0 22px rgba(245, 158, 11, 0.22);
+      --header-bg: rgba(9, 17, 31, 0.92);
+      --btn-grad-1: #0e7490;
+      --btn-grad-2: #4c1d95;
+      --panel-shadow: 0 24px 70px rgba(2, 132, 199, 0.12);
+      --bg-grad-1: rgba(34, 211, 238, 0.1);
+      --bg-grad-2: rgba(167, 139, 250, 0.08);
     }
 
     * {
@@ -100,8 +110,8 @@
       min-height: 100vh;
       overflow-x: hidden;
       background-image:
-        radial-gradient(ellipse at 20% 0%, var(--bg-grad-1, rgba(56, 189, 248, 0.06)) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 100%, var(--bg-grad-2, rgba(167, 139, 250, 0.06)) 0%, transparent 50%);
+        radial-gradient(ellipse at 20% 0%, var(--bg-grad-1) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, var(--bg-grad-2) 0%, transparent 50%);
       transition: background-color 0.3s ease, color 0.3s ease;
     }
 
@@ -112,17 +122,22 @@
       --bg-grad-2: rgba(100, 80, 160, 0.05);
     }
 
+    [data-theme="aurora"] body,
+    [data-theme="aurora"],
     [data-theme="matrix"] body,
     [data-theme="matrix"] {
-      --bg-grad-1: rgba(0, 255, 65, 0.04);
-      --bg-grad-2: rgba(0, 200, 50, 0.03);
+      --bg-grad-1: rgba(34, 211, 238, 0.1);
+      --bg-grad-2: rgba(167, 139, 250, 0.08);
     }
 
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.05) 2px, rgba(0, 0, 0, 0.05) 4px);
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+      background-size: 48px 48px;
       pointer-events: none;
       z-index: 999;
     }
@@ -304,6 +319,7 @@
       border-radius: 12px;
       overflow: hidden;
       position: relative;
+      box-shadow: var(--panel-shadow);
     }
 
     .panel::before {
@@ -888,6 +904,9 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 12px;
+      max-width: 1600px;
+      margin: 0 auto 20px;
+      padding: 0 28px;
     }
 
     .stat-card {
@@ -1375,6 +1394,88 @@
       font-style: italic;
       padding: 4px 14px;
     }
+
+    @media (max-width: 900px) {
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .header-right {
+        width: 100%;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .search-wrap {
+        flex: 1 1 220px;
+      }
+
+      .search-input,
+      .search-input:focus {
+        width: 100%;
+      }
+
+      .search-results {
+        left: 0;
+        right: auto;
+        width: min(100%, 340px);
+      }
+
+      .main,
+      .stats-row {
+        padding: 18px;
+      }
+
+      .stats-row {
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar,
+      .ai-panel,
+      .stats-row,
+      .chart-panel {
+        grid-column: auto;
+      }
+
+      .stats-row,
+      .forecast-row,
+      .fno-grid,
+      .news-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .ai-tabs {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .footer-bar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .chat-window {
+        left: 14px;
+        right: 14px;
+        bottom: 84px;
+        width: auto;
+        max-height: calc(100vh - 120px);
+      }
+
+      .chart-panel {
+        margin: 18px !important;
+        padding: 0 !important;
+      }
+    }
   </style>
 </head>
 
@@ -1746,40 +1847,62 @@
 
   <!-- Footer -->
   <div class="footer-bar">
-    <span>MARKET ORACLE © 2025 | Powered by Cloudflare Custom Proxy</span>
+    <span>MARKET ORACLE © 2026 | Powered by Cloudflare Worker API</span>
     <span id="last-updated">Last Updated: Never</span>
     <span>FOR EDUCATIONAL PURPOSE ONLY | NOT INVESTMENT ADVICE</span>
   </div>
 
   <script>
+    const DEFAULT_API_BASE = 'https://market-oracle-api.pawankalhansh.workers.dev';
+    const API_BASE = (window.MARKET_ORACLE_API_BASE || localStorage.getItem('mo-api-base') || DEFAULT_API_BASE).replace(/\/$/, '');
+    const LEGACY_PROXY = 'https://market-proxy.pawankalhansh.workers.dev';
+
+    async function apiJSON(path, options = {}) {
+      if (!API_BASE) throw new Error('Backend API URL is not configured.');
+      const response = await fetch(`${API_BASE}${path}`, {
+        cache: 'no-store',
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(options.headers || {})
+        }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || `Backend error: ${response.status}`);
+      return data;
+    }
+
     // ═══════════════════════════════════════════
     // THEME SWITCHER
     // ═══════════════════════════════════════════
     const THEMES = [
-      { key: 'dark', label: '🌌 Dark' },
-      { key: 'light', label: '☀️ Light' },
-      { key: 'matrix', label: '💚 Matrix' }
+      { key: 'dark', label: 'Midnight' },
+      { key: 'light', label: 'Pro Light' },
+      { key: 'aurora', label: 'Aurora' }
     ];
+
+    function getThemeByKey(key) {
+      if (key === 'matrix') return THEMES.find(t => t.key === 'aurora');
+      return THEMES.find(t => t.key === key) || THEMES[0];
+    }
+
+    function paintTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme.key);
+      localStorage.setItem('mo-theme', theme.key);
+      const btn = document.getElementById('theme-btn');
+      if (btn) btn.textContent = `Theme: ${theme.label}`;
+    }
+
     function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme') || 'dark';
-      const idx = THEMES.findIndex(t => t.key === current);
+      const current = getThemeByKey(document.documentElement.getAttribute('data-theme') || 'dark');
+      const idx = THEMES.findIndex(t => t.key === current.key);
       const next = THEMES[(idx + 1) % THEMES.length];
-      document.documentElement.setAttribute('data-theme', next.key);
-      localStorage.setItem('mo-theme', next.key);
-      const nextNext = THEMES[(THEMES.findIndex(t => t.key === next.key) + 1) % THEMES.length];
-      document.getElementById('theme-btn').innerHTML = nextNext.label;
+      paintTheme(next);
     }
     (function () {
-      const saved = localStorage.getItem('mo-theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', saved);
-      document.addEventListener('DOMContentLoaded', () => {
-        const btn = document.getElementById('theme-btn');
-        if (btn) {
-          const idx = THEMES.findIndex(t => t.key === saved);
-          const nextNext = THEMES[(idx + 1) % THEMES.length];
-          btn.innerHTML = nextNext.label;
-        }
-      });
+      const saved = getThemeByKey(localStorage.getItem('mo-theme') || 'dark');
+      document.documentElement.setAttribute('data-theme', saved.key);
+      document.addEventListener('DOMContentLoaded', () => paintTheme(saved));
     })();
 
     // ═══════════════════════════════════════════
@@ -1890,11 +2013,23 @@
     async function fetchAllMarketData() {
       const symbols = ['^NSEI', '^BSESN', '^DJI', '^GSPC', '^IXIC', '^N225', '^HSI', 'CL=F', 'GC=F', 'INR=X'];
 
+      if (API_BASE) {
+        try {
+          const data = await apiJSON(`/api/quotes?symbols=${encodeURIComponent(symbols.join(','))}`);
+          if (data.result && data.result.length) {
+            console.log('Live data fetched via backend API.');
+            return data.result;
+          }
+        } catch (e) {
+          console.warn('Backend quote API failed, trying fallback proxy:', e.message);
+        }
+      }
+
       // Spark API is lighter and generally bypasses strict Yahoo blocks
       const yahooUrl = `https://query1.finance.yahoo.com/v7/finance/spark?symbols=${symbols.join(',')}&range=1d&interval=1m`;
 
       // Your Cloudflare Worker URL
-      const myProxy = `https://market-proxy.pawankalhansh.workers.dev/?url=${encodeURIComponent(yahooUrl)}`;
+      const myProxy = `${LEGACY_PROXY}/?url=${encodeURIComponent(yahooUrl)}`;
 
       // Fallback free proxy just in case
       const backupProxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
@@ -2035,7 +2170,7 @@
         { source: 'CNBC TV18', headline: 'FIIs maintain cautious stance ahead of major data release.', impact: 'BEARISH' },
       ];
 
-      const sentimentScore = 50 + Math.round(nChangePct * 15);
+      const sentimentScore = Math.min(100, Math.max(0, 50 + Math.round(nChangePct * 15)));
 
       let analysisFinalText = "";
       if (isLiveSuccess) {
@@ -2352,10 +2487,9 @@
 
       const symbols = matches.map(m => STOCK_MAP[m]).join(',');
       try {
-        const PROXY = 'https://market-proxy.pawankalhansh.workers.dev';
-        const url = `${PROXY}/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/spark?symbols=${symbols}&range=1d&interval=1m`)}`;
-        const res = await fetch(url);
-        const json = await res.json();
+        const json = API_BASE
+          ? { spark: { result: (await apiJSON(`/api/quotes?symbols=${encodeURIComponent(symbols)}`)).result || [] } }
+          : await fetch(`${LEGACY_PROXY}/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/spark?symbols=${symbols}&range=1d&interval=1m`)}`).then(res => res.json());
 
         let html = '';
         matches.forEach(name => {
@@ -2392,11 +2526,16 @@
     // ═══════════════════════════════════════════
     // 🤖 AI CHATBOT (GEMINI API)
     // ═══════════════════════════════════════════
-    // NOTE: GitHub blocks keys if pasted directly. Split your NEW key into 2 parts:
-    const KEY_PART_1 = 'AIzaSyD0c2DG6aU4U'; // First half of your new key
-    const KEY_PART_2 = 'ogGEkqzEYazwXNM9tjCxhE'; // Second half of your new key
-    const GEMINI_KEY = KEY_PART_1 + KEY_PART_2;
     let chatHistory = [];
+
+    function escapeHTML(value) {
+      return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
 
     function toggleChat() {
       const w = document.getElementById('chat-window');
@@ -2409,7 +2548,7 @@
       if (!msg) return;
 
       const msgs = document.getElementById('chat-messages');
-      msgs.innerHTML += `<div class="chat-msg user">${msg}</div>`;
+      msgs.innerHTML += `<div class="chat-msg user">${escapeHTML(msg)}</div>`;
       input.value = '';
       msgs.scrollTop = msgs.scrollHeight;
 
@@ -2417,94 +2556,28 @@
       msgs.innerHTML += `<div class="chat-typing" id="${typingId}">AI is thinking...</div>`;
       msgs.scrollTop = msgs.scrollHeight;
 
-      if (GEMINI_KEY === 'YOUR_GEMINI_API_KEY') {
-        document.getElementById(typingId)?.remove();
-        msgs.innerHTML += `<div class="chat-msg bot">⚠️ Gemini API key set nahi hai.</div>`;
-        return;
-      }
-
-      chatHistory.push({ role: "user", parts: [{ text: msg }] });
-
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;
-      const sysInst = "You are Market Oracle AI, a highly intelligent global stock market expert assistant. Answer in Hinglish. You have access to real-time market data. Always fetch live data using your tool before answering questions about specific stocks, indices, or markets. Analyze the fetched data (Price, Change, Currency) and explain it logically. Add a short disclaimer at the end.";
-
-      const requestBody = {
-        system_instruction: { parts: [{ text: sysInst }] },
-        contents: chatHistory,
-        tools: [{
-          functionDeclarations: [{
-            name: "get_live_stock_data",
-            description: "Search for a company/stock and fetch its real-time market price and data.",
-            parameters: {
-              type: "OBJECT",
-              properties: { query: { type: "STRING", description: "Company name or stock symbol (e.g. Reliance, AAPL, Nifty)" } },
-              required: ["query"]
-            }
-          }]
-        }],
-        generationConfig: { maxOutputTokens: 2000, temperature: 0.6 }
-      };
+      chatHistory.push({ role: 'user', content: msg });
 
       try {
-        let response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
-        let data = await response.json();
-        
-        if (data.error) throw new Error(data.error.message);
-        let message = data.candidates?.[0]?.content;
-        
-        // Handle Tool Calling (Fetching Live Data)
-        if (message && message.parts && message.parts[0].functionCall) {
-          const fn = message.parts[0].functionCall;
-          if (fn.name === "get_live_stock_data") {
-            chatHistory.push(message); // Save AI's function request
-            document.getElementById(typingId).innerText = `Fetching live data for ${fn.args.query}...`;
-            
-            // 1. Search for symbol
-            const PROXY = 'https://market-proxy.pawankalhansh.workers.dev/?url=';
-            let searchUrl = PROXY + encodeURIComponent(`https://query2.finance.yahoo.com/v1/finance/search?q=${fn.args.query}&quotesCount=1`);
-            let searchRes = await fetch(searchUrl);
-            let searchData = await searchRes.json();
-            
-            let stockInfo = "Stock not found. Tell user data is unavailable.";
-            if (searchData.quotes && searchData.quotes.length > 0) {
-              let sym = searchData.quotes[0].symbol;
-              // 2. Fetch live quote
-              let chartUrl = PROXY + encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?range=1d&interval=1d`);
-              let chartRes = await fetch(chartUrl);
-              let chartData = await chartRes.json();
-              let meta = chartData.chart?.result?.[0]?.meta;
-              if (meta) {
-                stockInfo = `Symbol: ${sym}, Live Price: ${meta.regularMarketPrice}, Previous Close: ${meta.chartPreviousClose}, Currency: ${meta.currency}, Exchange: ${meta.exchangeName}`;
-              }
-            }
-
-            // Provide data back to AI
-            chatHistory.push({
-              role: "function",
-              parts: [{ functionResponse: { name: "get_live_stock_data", response: { name: "get_live_stock_data", content: stockInfo } } }]
-            });
-
-            // Call AI again for final answer
-            response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-              system_instruction: { parts: [{ text: sysInst }] },
-              contents: chatHistory,
-              generationConfig: { maxOutputTokens: 2000, temperature: 0.6 }
-            })});
-            data = await response.json();
-            if (data.error) throw new Error(data.error.message);
-            message = data.candidates?.[0]?.content;
-          }
+        if (!API_BASE) {
+          throw new Error('Backend API URL set nahi hai. Pehle Cloudflare Worker deploy karke mo-api-base set karo.');
         }
 
-        document.getElementById(typingId)?.remove();
-        if(message) chatHistory.push(message); // Save final text
+        const data = await apiJSON('/api/chat', {
+          method: 'POST',
+          body: JSON.stringify({ messages: chatHistory.slice(-12) })
+        });
 
-        let reply = message?.parts?.[0]?.text || 'Sorry, main answer nahi generate kar paya.';
-        reply = reply.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<i>$1</i>').replace(/\n/g, '<br>');
-        
+        document.getElementById(typingId)?.remove();
+
+        let reply = data.reply || 'Sorry, main answer nahi generate kar paya.';
+        chatHistory.push({ role: 'assistant', content: reply });
+        reply = escapeHTML(reply).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<i>$1</i>').replace(/\n/g, '<br>');
+
         msgs.innerHTML += `<div class="chat-msg bot">${reply}</div>`;
       } catch (e) {
         document.getElementById(typingId)?.remove();
+        chatHistory.pop();
         msgs.innerHTML += `<div class="chat-msg bot" style="color:var(--red)">Error: ${e.message}</div>`;
       }
       msgs.scrollTop = msgs.scrollHeight;

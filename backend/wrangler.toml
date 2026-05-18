@@ -1,0 +1,6 @@
+name = "market-oracle-api"
+main = "worker.js"
+compatibility_date = "2026-05-18"
+
+[vars]
+APP_NAME = "Market Oracle"
