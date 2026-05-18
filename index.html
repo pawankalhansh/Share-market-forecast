@@ -1848,6 +1848,20 @@
             <option value="FOREXCOM:UKXGBP">🇬🇧 FTSE 100</option>
             <option value="FOREXCOM:GRXEUR">🇩🇪 DAX (GERMANY)</option>
           </optgroup>
+          <optgroup label="🛢️ GLOBAL COMMODITIES">
+            <option value="OANDA:XAUUSD">🌟 GOLD (Spot)</option>
+            <option value="OANDA:XAGUSD">🥈 SILVER (Spot)</option>
+            <option value="TVC:USOIL">🛢️ CRUDE OIL (WTI)</option>
+            <option value="CAPITALCOM:NATURALGAS">🔥 NATURAL GAS</option>
+            <option value="TVC:COPPER">🥉 COPPER</option>
+          </optgroup>
+          <optgroup label="🇮🇳 INDIAN COMMODITIES (MCX)">
+            <option value="MCX:GOLD1!">🌟 MCX GOLD (Futures)</option>
+            <option value="MCX:SILVER1!">🥈 MCX SILVER (Futures)</option>
+            <option value="MCX:CRUDEOIL1!">🛢️ MCX CRUDE OIL</option>
+            <option value="MCX:NATURALGAS1!">🔥 MCX NATURAL GAS</option>
+            <option value="MCX:COPPER1!">🥉 MCX COPPER</option>
+          </optgroup>
           <optgroup label="🏦 BANKS">
             <option value="BSE:HDFCBANK">HDFC BANK</option>
             <option value="BSE:ICICIBANK">ICICI BANK</option>
@@ -2304,6 +2318,8 @@
 
       return {
         sensex_current: sCurrent,
+        sensex_change_pts: sCurrent - sPrev,
+        sensex_change_pct: sChangePct,
         sensex_upside: sUpside,
         sensex_downside: sDownside,
         sensex_resistance: sUpside + 150,
@@ -2319,6 +2335,8 @@
         sensex_sl_short: String(sCurrent + Math.round(sCurrent * 0.01)),
 
         nifty_current: nCurrent,
+        nifty_change_pts: nCurrent - nPrev,
+        nifty_change_pct: nChangePct,
         nifty_upside: nUpside,
         nifty_downside: nDownside,
         nifty_resistance: nUpside + 50,
@@ -2372,7 +2390,10 @@
     // ═══════════════════════════════════════════
     function populateForecast(data) {
       const sc = data.sensex_current;
-      document.getElementById('sensex-current').textContent = `Current: ₹${sc.toLocaleString('en-IN')}`;
+      const sPts = data.sensex_change_pts;
+      const sPct = data.sensex_change_pct;
+      const sIsUp = sPts >= 0;
+      document.getElementById('sensex-current').innerHTML = `Current: ₹${sc.toLocaleString('en-IN')} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${sIsUp ? 'green' : 'red'})">${sIsUp ? '▲ +' : '▼ '}${sPts.toFixed(1)} (${sIsUp ? '+' : ''}${sPct.toFixed(2)}%)</span>`;
       document.getElementById('s-up').textContent = `₹${data.sensex_upside.toLocaleString('en-IN')}`;
       document.getElementById('s-dn').textContent = `₹${data.sensex_downside.toLocaleString('en-IN')}`;
       const supPct = (((data.sensex_upside - sc) / sc) * 100).toFixed(2);
@@ -2389,7 +2410,10 @@
       buildMiniChart('s-chart', data.sensex_bias === 'BULLISH' ? 'bull' : 'bear');
 
       const nc = data.nifty_current;
-      document.getElementById('nifty-current').textContent = `Current: ₹${nc.toLocaleString('en-IN')}`;
+      const nPts = data.nifty_change_pts;
+      const nPct = data.nifty_change_pct;
+      const nIsUp = nPts >= 0;
+      document.getElementById('nifty-current').innerHTML = `Current: ₹${nc.toLocaleString('en-IN')} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${nIsUp ? 'green' : 'red'})">${nIsUp ? '▲ +' : '▼ '}${nPts.toFixed(1)} (${nIsUp ? '+' : ''}${nPct.toFixed(2)}%)</span>`;
       document.getElementById('n-up').textContent = `₹${data.nifty_upside.toLocaleString('en-IN')}`;
       document.getElementById('n-dn').textContent = `₹${data.nifty_downside.toLocaleString('en-IN')}`;
       const nupPct = (((data.nifty_upside - nc) / nc) * 100).toFixed(2);
