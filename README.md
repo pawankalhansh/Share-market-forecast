@@ -1,9 +1,9 @@
-﻿# Market Oracle — Sensex & Nifty AI Forecaster
+# Share Market Forecast — Sensex & Nifty AI Forecaster
 
-This repository contains the Market Oracle dashboard for Sensex and Nifty forecasting.
+This repository contains the Share Market Forecast dashboard for Sensex and Nifty forecasting.
 
 ## Files
-- `index.html` — full static Market Oracle page
+- `index.html` — full static Share Market Forecast page
 - `styles.css` — unused stylesheet (the page uses inline styles)
 - `backend/` — Cloudflare Worker API for market quotes, search, and Gemini chat
 - `README.md` — this project description
@@ -27,7 +27,7 @@ http://127.0.0.1:4173/index.html
 This repo is configured for GitHub Pages from the `main` branch root.
 
 The published site should be:
-- `https://pawankalhansh.github.io/Share-market-forcast/`
+- `https://pawankalhansh.github.io/Share-market-forecast/`
 
 Current Worker backend:
 - `https://market-oracle-api.pawankalhansh.workers.dev`
@@ -47,6 +47,6 @@ The browser app can run without the backend for basic forecast simulation, but t
 After this, forecast/search will use the backend quote API and the chatbot will use Gemini safely through the backend.
 
 ## Notes
-- The page is a static HTML dashboard based on your original Market Oracle design.
+- The page is a static HTML dashboard for Share Market Forecast.
 - The `RUN MARKET ANALYSIS` button can use live backend quotes, legacy quote proxy fallback, or local simulation fallback.
 - Never put API keys in frontend code or GitHub Pages.

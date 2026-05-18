@@ -7,7 +7,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Market Oracle — Sensex & Nifty AI Forecaster</title>
+  <title>Share Market Forecast — Sensex & Nifty AI Forecaster</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap"
     rel="stylesheet">
@@ -1485,7 +1485,7 @@
     <div class="logo">
       <div class="logo-icon">📡</div>
       <div>
-        <div class="logo-text">MARKET ORACLE</div>
+        <div class="logo-text">SHARE MARKET FORECAST</div>
         <div class="logo-sub">AI-Powered Indian Market Forecaster</div>
       </div>
     </div>
@@ -1723,7 +1723,7 @@
 
   <div class="panel ai-panel">
     <div class="panel-header">
-      <div class="panel-title"><span class="dot" style="background:var(--green)"></span>MARKET ORACLE ENGINE —
+      <div class="panel-title"><span class="dot" style="background:var(--green)"></span>SHARE MARKET FORECAST ENGINE —
         SIMULATION ALGORITHM</div>
       <div style="display:flex;gap:8px;align-items:center">
         <div class="tag">v2.0 LIVE</div>
@@ -1751,7 +1751,7 @@
         <div id="tab-analysis" class="tab-pane active">
           <div class="ai-output" id="analysis-output">
             <span style="color:var(--text-muted)">╔══════════════════════════════════════════╗
-              ║ MARKET ORACLE — FORECAST SIMULATOR ║
+              ║ SHARE MARKET FORECAST — SIMULATOR  ║
               ║ Math & Algorithm Based ║
               ╚══════════════════════════════════════════╝
 
@@ -1821,7 +1821,7 @@
   <!-- TradingView Chart -->
   <div class="panel chart-panel" style="margin:0 28px;max-width:1544px;margin:0 auto;padding:0 28px">
     <div class="panel-header">
-      <div class="panel-title"><span class="dot" style="background:var(--green)"></span>BSE SENSEX — LIVE CHART</div>
+      <div class="panel-title"><span class="dot" style="background:var(--green)"></span>INDIAN MARKET — LIVE CHART</div>
       <div class="tag">TRADINGVIEW</div>
     </div>
     <div class="chart-container" id="tv-chart"></div>
@@ -1831,11 +1831,11 @@
   <button class="chat-fab" id="chat-fab" onclick="toggleChat()">🤖</button>
   <div class="chat-window" id="chat-window">
     <div class="chat-header">
-      <span class="chat-header-title">🤖 MARKET ORACLE AI</span>
+      <span class="chat-header-title">🤖 SHARE MARKET FORECAST AI</span>
       <button class="chat-close" onclick="toggleChat()">✕</button>
     </div>
     <div class="chat-messages" id="chat-messages">
-      <div class="chat-msg bot">Namaste! 🙏 Main Market Oracle AI hoon. Mujhse stocks, indicators, market analysis ke
+      <div class="chat-msg bot">Namaste! 🙏 Main Share Market Forecast AI hoon. Mujhse stocks, indicators, market analysis ke
         baare mein poocho! Example: "Explain RSI" ya "Nifty outlook kya hai?"</div>
     </div>
     <div class="chat-input-wrap">
@@ -1847,7 +1847,7 @@
 
   <!-- Footer -->
   <div class="footer-bar">
-    <span>MARKET ORACLE © 2026 | Powered by Cloudflare Worker API</span>
+    <span>SHARE MARKET FORECAST © 2026</span>
     <span id="last-updated">Last Updated: Never</span>
     <span>FOR EDUCATIONAL PURPOSE ONLY | NOT INVESTMENT ADVICE</span>
   </div>
@@ -2406,11 +2406,23 @@
     function initTVChart() {
       const container = document.getElementById('tv-chart');
       if (!container) return;
-      const isDark = (document.documentElement.getAttribute('data-theme') || 'dark') !== 'light';
+      const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const isDark = theme !== 'light';
       container.innerHTML = '';
       const script = document.createElement('script');
       script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
       script.async = true;
+      let bgColor, gridColor;
+      if (theme === 'light') {
+        bgColor = 'rgba(246,248,251,1)';
+        gridColor = 'rgba(214,222,232,0.4)';
+      } else if (theme === 'aurora' || theme === 'matrix') {
+        bgColor = 'rgba(9,17,31,1)';
+        gridColor = 'rgba(42,58,82,0.4)';
+      } else {
+        bgColor = 'rgba(8,10,18,1)';
+        gridColor = 'rgba(38,50,71,0.3)';
+      }
       script.innerHTML = JSON.stringify({
         "autosize": true,
         "symbol": "BSE:SENSEX",
@@ -2419,11 +2431,12 @@
         "theme": isDark ? "dark" : "light",
         "style": "1",
         "locale": "en",
-        "backgroundColor": isDark ? "rgba(13,13,31,1)" : "rgba(255,253,247,1)",
-        "gridColor": isDark ? "rgba(30,30,66,0.3)" : "rgba(200,191,168,0.3)",
+        "backgroundColor": bgColor,
+        "gridColor": gridColor,
         "hide_top_toolbar": false,
         "hide_legend": false,
         "allow_symbol_change": true,
+        "watchlist": ["BSE:SENSEX", "NSE:NIFTY", "NSE:BANKNIFTY", "BSE:RELIANCE", "NSE:TCS", "NSE:INFY", "NSE:HDFCBANK"],
         "save_image": false,
         "calendar": false,
         "support_host": "https://www.tradingview.com",
