@@ -895,7 +895,7 @@
 
     .sidebar {
       grid-column: 3;
-      grid-row: 1 / 3;
+      grid-row: 1 / 4;
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -1616,6 +1616,8 @@
       </div>
     </div>
 
+    <div id="extra-cards" style="display:contents"></div>
+
     <div class="sidebar">
 
       <div class="panel">
@@ -1844,7 +1846,6 @@
             <option value="FOREXCOM:SPXUSD">🇺🇸 S&P 500</option>
             <option value="FOREXCOM:DJI">🇺🇸 DOW JONES</option>
             <option value="HSI:HSI">🇭🇰 HANG SENG</option>
-            <option value="FOREXCOM:JPN225">🇯🇵 NIKKEI 225</option>
             <option value="FOREXCOM:UKXGBP">🇬🇧 FTSE 100</option>
             <option value="FOREXCOM:GRXEUR">🇩🇪 DAX (GERMANY)</option>
           </optgroup>
@@ -2351,6 +2352,9 @@
         positive_global: nBias === 'BULLISH' ? 7 : 4,
         news_scanned: 18,
         global_markets: finalGlobals,
+        gold_data: finalGlobals.find(g => g.name === 'GOLD'),
+        crude_data: finalGlobals.find(g => g.name === 'CRUDE OIL'),
+        usdinr_data: finalGlobals.find(g => g.name === 'USD/INR'),
         news_items: newsItems,
         analysis_text: analysisFinalText,
         strategy: generateStrategyText(nCurrent, nUpside, nDownside, sCurrent, sUpside, sDownside, risk, lang)
@@ -2421,6 +2425,39 @@
       ntag.textContent = data.nifty_bias;
       ntag.className = 'tag ' + (data.nifty_bias === 'BULLISH' ? 'bull' : data.nifty_bias === 'BEARISH' ? 'bear' : '');
       buildMiniChart('n-chart', data.nifty_bias === 'BULLISH' ? 'bull' : 'bear');
+
+      // Populate Extra Cards (Gold, Crude, USDINR)
+      function popExtra(id, d) {
+        if (!d) return;
+        const valStr = String(d.val).replace(/[^0-9.]/g, '');
+        const val = parseFloat(valStr) || 100;
+        const pts = val * (d.change / 100);
+        const isUp = d.change >= 0;
+        document.getElementById(`${id}-current`).innerHTML = `Current: ${d.val} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${isUp ? 'green' : 'red'})">${isUp ? '▲ +' : '▼ '}${pts.toFixed(2)} (${isUp ? '+' : ''}${d.change.toFixed(2)}%)</span>`;
+        
+        const upT = val * 1.015;
+        const dnT = val * 0.985;
+        document.getElementById(`${id}-up`).textContent = d.val.replace(/[0-9.]+/, upT.toFixed(2));
+        document.getElementById(`${id}-dn`).textContent = d.val.replace(/[0-9.]+/, dnT.toFixed(2));
+        document.getElementById(`${id}-up-pct`).textContent = '+1.50%';
+        document.getElementById(`${id}-dn-pct`).textContent = '-1.50%';
+        
+        document.getElementById(`${id}-res`).textContent = d.val.replace(/[0-9.]+/, (val * 1.025).toFixed(2));
+        document.getElementById(`${id}-sup`).textContent = d.val.replace(/[0-9.]+/, (val * 0.975).toFixed(2));
+        
+        const conf = Math.min(95, Math.max(40, 50 + Math.abs(Math.round(d.change * 20))));
+        document.getElementById(`${id}-conf`).textContent = conf + '%';
+        document.getElementById(`${id}-conf-bar`).style.width = conf + '%';
+        
+        const tag = document.getElementById(`${id}-tag`);
+        tag.textContent = d.impact;
+        tag.className = 'tag ' + (d.impact === 'BULLISH' ? 'bull' : 'bear');
+        buildMiniChart(`${id}-chart`, d.impact === 'BULLISH' ? 'bull' : 'bear');
+      }
+
+      popExtra('gold', data.gold_data);
+      popExtra('crude', data.crude_data);
+      popExtra('usdinr', data.usdinr_data);
 
       setGauge(data.sentiment_score);
       document.getElementById('sent-reason').innerHTML = data.sentiment_reason;
@@ -2778,6 +2815,65 @@
           .catch(err => console.log('Service Worker Registration Failed!', err));
       });
     }
+    function buildExtraCard(id, title, colorHex) {
+      return `
+        <div class="panel forecast-card" id="${id}-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <span class="dot" style="background:${colorHex}"></span>
+              ${title} — KAL KA FORECAST
+            </div>
+            <div class="tag" id="${id}-tag">ANALYZING...</div>
+          </div>
+          <div class="forecast-body">
+            <div class="index-name" style="color:${colorHex};text-shadow:0 0 10px ${colorHex}55">${title}</div>
+            <div class="current-val" id="${id}-current">Current: Loading...</div>
+
+            <div class="forecast-row">
+              <div class="f-box up">
+                <div class="f-label">▲ UPSIDE TARGET</div>
+                <div class="f-val up" id="${id}-up">--</div>
+                <div class="f-pct up" id="${id}-up-pct">+0.00%</div>
+              </div>
+              <div class="f-box dn">
+                <div class="f-label">▼ DOWNSIDE RISK</div>
+                <div class="f-val dn" id="${id}-dn">--</div>
+                <div class="f-pct dn" id="${id}-dn-pct">-0.00%</div>
+              </div>
+            </div>
+
+            <div class="forecast-row">
+              <div class="f-box" style="border-color:rgba(255,171,0,0.3)">
+                <div class="f-label" style="color:var(--amber)">🎯 STRONG RES.</div>
+                <div class="f-val" style="color:var(--amber)" id="${id}-res">--</div>
+              </div>
+              <div class="f-box" style="border-color:rgba(124,77,255,0.3)">
+                <div class="f-label" style="color:var(--purple)">🛡 STRONG SUP.</div>
+                <div class="f-val" style="color:var(--purple)" id="${id}-sup">--</div>
+              </div>
+            </div>
+
+            <div class="confidence-section">
+              <div class="conf-label">
+                <span>CONFIDENCE SCORE</span>
+                <span class="conf-val" id="${id}-conf">--%</span>
+              </div>
+              <div class="conf-bar-wrap">
+                <div class="conf-bar" id="${id}-conf-bar" style="width:0%; background: linear-gradient(90deg, #333, ${colorHex}); box-shadow: 0 0 10px ${colorHex}88"></div>
+              </div>
+            </div>
+
+            <div class="mini-chart" id="${id}-chart"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('extra-cards').innerHTML = 
+      buildExtraCard('gold', 'GOLD', 'var(--amber)') +
+      buildExtraCard('crude', 'CRUDE OIL', 'var(--text-muted)') +
+      buildExtraCard('usdinr', 'USD/INR', 'var(--green)');
+
   </script>
 </body>
 
