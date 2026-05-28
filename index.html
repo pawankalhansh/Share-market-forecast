@@ -2048,6 +2048,7 @@
       { name: 'HANG SENG', val: 'Loading...', chg: '--', up: true },
       { name: 'CRUDE OIL', val: 'Loading...', chg: '--', up: false },
       { name: 'GOLD', val: 'Loading...', chg: '--', up: true },
+      { name: 'USD/INR', val: 'Loading...', chg: '--', up: true },
     ];
 
     function buildTicker() {
@@ -2135,10 +2136,11 @@
     // ═══════════════════════════════════════════
     async function fetchAllMarketData() {
       const symbols = ['^NSEI', '^BSESN', '^DJI', '^GSPC', '^IXIC', '^N225', '^HSI', 'CL=F', 'GC=F', 'INR=X', '^NSEBANK', '^CNXFIN', '^CNXIT', '^CNXAUTO', '^CNXMID', '^CNXPHARMA', '^INDIAVIX'];
+      const timestamp = Date.now();
 
       if (API_BASE) {
         try {
-          const data = await apiJSON(`/api/quotes?symbols=${encodeURIComponent(symbols.join(','))}`);
+          const data = await apiJSON(`/api/quotes?symbols=${encodeURIComponent(symbols.join(','))}&_t=${timestamp}`);
           if (data.result && data.result.length) {
             console.log('Live data fetched via backend API.');
             return data.result;
@@ -2149,13 +2151,13 @@
       }
 
       // Spark API is lighter and generally bypasses strict Yahoo blocks
-      const yahooUrl = `https://query1.finance.yahoo.com/v7/finance/spark?symbols=${symbols.join(',')}&range=1d&interval=1m`;
+      const yahooUrl = `https://query1.finance.yahoo.com/v7/finance/spark?symbols=${symbols.join(',')}&range=1d&interval=1m&_nocache=${timestamp}`;
 
       // Your Cloudflare Worker URL
-      const myProxy = `${LEGACY_PROXY}/?url=${encodeURIComponent(yahooUrl)}`;
+      const myProxy = `${LEGACY_PROXY}/?url=${encodeURIComponent(yahooUrl)}&_t=${timestamp}`;
 
       // Fallback free proxy just in case
-      const backupProxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
+      const backupProxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}&_t=${timestamp}`;
 
       for (const proxy of [myProxy, backupProxy]) {
         try {
@@ -2744,8 +2746,9 @@
 
       try {
         let matches = [];
+        const timestamp = Date.now();
         if (API_BASE) {
-          const searchData = await apiJSON(`/api/search?q=${encodeURIComponent(q)}`);
+          const searchData = await apiJSON(`/api/search?q=${encodeURIComponent(q)}&_t=${timestamp}`);
           if (searchData.quotes && searchData.quotes.length > 0) {
             matches = searchData.quotes.filter(q => q.quoteType === 'EQUITY' || q.quoteType === 'INDEX').slice(0, 5);
           }
@@ -2761,8 +2764,8 @@
 
         const symbols = matches.map(m => m.symbol).join(',');
         const json = API_BASE
-          ? { spark: { result: (await apiJSON(`/api/quotes?symbols=${encodeURIComponent(symbols)}`)).result || [] } }
-          : await fetch(`${LEGACY_PROXY}/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/spark?symbols=${symbols}&range=1d&interval=1m`)}`).then(res => res.json());
+          ? { spark: { result: (await apiJSON(`/api/quotes?symbols=${encodeURIComponent(symbols)}&_t=${timestamp}`)).result || [] } }
+          : await fetch(`${LEGACY_PROXY}/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/spark?symbols=${symbols}&range=1d&interval=1m&_nocache=${timestamp}`)}&_t=${timestamp}`).then(res => res.json());
 
         let html = '';
         matches.forEach(match => {
@@ -2925,6 +2928,14 @@
       buildExtraCard('gold', 'GOLD', 'var(--amber)') +
       buildExtraCard('crude', 'CRUDE OIL', 'var(--text-muted)') +
       buildExtraCard('usdinr', 'USD/INR', 'var(--green)');
+
+    // Automatically fetch live market data on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        console.log("🚀 Automatically fetching live market data on page load...");
+        runAnalysis();
+      }, 1000);
+    });
 
   </script>
 </body>
