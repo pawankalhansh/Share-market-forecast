@@ -1824,8 +1824,8 @@
             <option value="beginner">🛡️ Beginner</option>
           </select>
           <select id="lang-toggle" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-family:var(--mono);font-size:11px;outline:none;cursor:pointer">
-            <option value="en">🇺🇸 English</option>
-            <option value="hi" selected>🇮🇳 Hinglish</option>
+            <option value="en" selected>🇺🇸 English</option>
+            <option value="hi">🇮🇳 Hinglish</option>
           </select>
         </div>
         <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">
@@ -1951,8 +1951,7 @@
       <button class="chat-close" onclick="toggleChat()">✕</button>
     </div>
     <div class="chat-messages" id="chat-messages">
-      <div class="chat-msg bot">Namaste! 🙏 Main Share Market Forecast AI hoon. Mujhse stocks, indicators, market analysis ke
-        baare mein poocho! Example: "Explain RSI" ya "Nifty outlook kya hai?"</div>
+      <div class="chat-msg bot">Hello! 🙏 I'm Share Market Forecast AI. Ask me about stocks, indicators, or market analysis! Example: "Explain RSI" or "What's the Nifty outlook?"</div>
     </div>
     <div class="chat-input-wrap">
       <input class="chat-input" id="chat-input" placeholder="Ask about stocks..."
@@ -2325,7 +2324,7 @@
         📰 News: <b>${newsImpact >= 0 ? '+' + newsImpact.toFixed(0) : newsImpact.toFixed(0)}</b>`;
 
       let analysisFinalText = "";
-      const lang = document.getElementById('lang-toggle')?.value || 'hi';
+      const lang = document.getElementById('lang-toggle')?.value || 'en';
       const risk = document.getElementById('risk-mode')?.value || 'swing';
 
       if (isLiveSuccess) {
@@ -2839,7 +2838,7 @@
 
       try {
         if (!API_BASE) {
-          throw new Error('Backend API URL set nahi hai. Pehle Cloudflare Worker deploy karke mo-api-base set karo.');
+          throw new Error('Backend API URL is not set. Please deploy the Cloudflare Worker and set mo-api-base first.');
         }
 
         const data = await apiJSON('/api/chat', {
@@ -2849,7 +2848,7 @@
 
         document.getElementById(typingId)?.remove();
 
-        let reply = data.reply || 'Sorry, main answer nahi generate kar paya.';
+        let reply = data.reply || 'Sorry, I could not generate an answer. Please try again.';
         chatHistory.push({ role: 'assistant', content: reply });
         reply = escapeHTML(reply).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<i>$1</i>').replace(/\n/g, '<br>');
 
