@@ -2240,11 +2240,8 @@
     <div class="chat-messages" id="chat-messages">
       <div class="chat-msg bot">Hello! 🙏 I'm Share Market Forecast AI. Ask me about stocks, indicators, or market analysis! Example: "Explain RSI" or "What's the Nifty outlook?"</div>
     </div>
-    <div class="chat-chips">
-      <button class="chat-chip" onclick="usePrompt('Nifty Outlook?')">📈 Nifty Outlook?</button>
-      <button class="chat-chip" onclick="usePrompt('Explain RSI')">📊 Explain RSI</button>
-      <button class="chat-chip" onclick="usePrompt('Best IT stocks?')">💻 Best IT stocks?</button>
-      <button class="chat-chip" onclick="usePrompt('Option trading basics')">⚡ Options basics</button>
+    <div class="chat-chips" id="chat-prompt-chips">
+      <!-- Generated dynamically by JS -->
     </div>
     <div class="chat-input-wrap">
       <input class="chat-input" id="chat-input" placeholder="Ask about stocks..."
@@ -3393,10 +3390,37 @@
       }
     }
 
+    function generateChatChips() {
+      const tips = [
+        { icon: '📈', text: 'Nifty Outlook?' },
+        { icon: '🏦', text: 'Bank Nifty levels' },
+        { icon: '📊', text: 'Explain RSI' },
+        { icon: '💻', text: 'Best IT stocks?' },
+        { icon: '⚡', text: 'Options trading basics' },
+        { icon: '💡', text: 'What is MACD?' },
+        { icon: '🚀', text: 'Top Breakout stocks' },
+        { icon: '💰', text: 'Long term investing' },
+        { icon: '🔥', text: 'Today\\'s top gainers' },
+        { icon: '🛡️', text: 'Safe defensive stocks' },
+        { icon: '📉', text: 'Why is market falling?' }
+      ];
+
+      const shuffled = tips.sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 4);
+
+      const container = document.getElementById('chat-prompt-chips');
+      if (container) {
+        container.innerHTML = selected.map(chip => 
+          `<button class="chat-chip" onclick="usePrompt('${chip.text.replace(/'/g, "\\\\'")}')">${chip.icon} ${chip.text}</button>`
+        ).join('');
+      }
+    }
+
     // Initialize widgets on load
     window.addEventListener('DOMContentLoaded', () => {
       calcSIP();
       loadPortfolio();
+      generateChatChips();
     });
   </script>
 </body>
