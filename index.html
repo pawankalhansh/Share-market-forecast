@@ -1567,6 +1567,7 @@
     .sip-range {
       width: 100%;
       -webkit-appearance: none;
+      appearance: none;
       background: var(--surface2);
       height: 6px;
       border-radius: 3px;
@@ -1574,7 +1575,16 @@
     }
     .sip-range::-webkit-slider-thumb {
       -webkit-appearance: none;
+      appearance: none;
       width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--cyan);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--cyan);
+    }
+    .sip-range::-moz-range-thumb {
+      width: 16px; height: 16px;
+      border: none;
       border-radius: 50%;
       background: var(--cyan);
       cursor: pointer;
