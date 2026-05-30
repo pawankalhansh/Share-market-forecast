@@ -1945,7 +1945,7 @@
       <div class="tk-title">💼 PORTFOLIO TRACKER</div>
       
       <div class="pf-input-row">
-        <input type="text" id="pf-sym" class="pf-input pf-sym" placeholder="Symbol (e.g. RELIANCE.NS)" autocomplete="off">
+        <input type="text" id="pf-sym" class="pf-input pf-sym" placeholder="Symbol (e.g. RELIANCE)" autocomplete="off">
         <input type="number" id="pf-qty" class="pf-input pf-qty" placeholder="Qty">
         <input type="number" id="pf-price" class="pf-input pf-price" placeholder="Price">
         <button class="pf-btn" onclick="addPfItem()">ADD</button>
@@ -3254,13 +3254,18 @@
     }
 
     function addPfItem() {
-      const sym = document.getElementById('pf-sym').value.toUpperCase().trim();
+      let sym = document.getElementById('pf-sym').value.toUpperCase().trim();
       const qty = parseFloat(document.getElementById('pf-qty').value);
       const price = parseFloat(document.getElementById('pf-price').value);
 
       if (!sym || !qty || !price) {
         alert('Please fill all fields (Symbol, Qty, Price)');
         return;
+      }
+
+      // Automatically append .NS (NSE) if user didn't specify an exchange suffix
+      if (!sym.includes('.')) {
+        sym += '.NS';
       }
 
       portfolio.push({ symbol: sym, qty: qty, price: price });
