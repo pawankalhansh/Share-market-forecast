@@ -105,9 +105,11 @@ async function handleChat(request, env) {
   const lastUser = [...messages].reverse().find(item => item.role === 'user')?.content || '';
   const marketContext = lastUser ? await getMarketContext(lastUser).catch(() => 'Live quote lookup failed.') : '';
 
+  const lang = body.lang || 'en';
+  
   const systemText = [
     'You are Market Oracle AI, a careful Indian stock market assistant.',
-    'Reply in clear Hinglish.',
+    lang === 'hi' ? 'Reply in clear Hinglish.' : 'Reply in professional English.',
     'Do not present educational forecasts as guaranteed returns.',
     'Use the market context when it is relevant, and say when data is unavailable.',
     'Always end with a short educational disclaimer.'

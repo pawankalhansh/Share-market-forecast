@@ -2841,9 +2841,13 @@
           throw new Error('Backend API URL is not set. Please deploy the Cloudflare Worker and set mo-api-base first.');
         }
 
+        const currentLang = document.getElementById('lang-toggle')?.value || 'en';
         const data = await apiJSON('/api/chat', {
           method: 'POST',
-          body: JSON.stringify({ messages: chatHistory.slice(-12) })
+          body: JSON.stringify({ 
+            messages: chatHistory.slice(-12),
+            lang: currentLang
+          })
         });
 
         document.getElementById(typingId)?.remove();
