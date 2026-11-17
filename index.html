@@ -1763,7 +1763,7 @@
     <div class="header-right">
       <div class="search-wrap">
         <input class="search-input" id="stock-search" type="text" placeholder="🔍 Search Stock..."
-          onkeydown="if(event.key==='Enter')searchStock()">
+          autocomplete="off" oninput="onSearchInput()" onkeydown="if(event.key==='Enter')searchStock()">
         <div class="search-results" id="search-results"></div>
       </div>
       <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀️ Light</button>
@@ -2026,9 +2026,9 @@
       <div class="tk-title">💼 PORTFOLIO TRACKER</div>
       
       <div class="pf-input-row">
-        <input type="text" id="pf-sym" class="pf-input pf-sym" placeholder="Symbol (e.g. RELIANCE)" autocomplete="off">
-        <input type="number" id="pf-qty" class="pf-input pf-qty" placeholder="Qty">
-        <input type="number" id="pf-price" class="pf-input pf-price" placeholder="Price">
+        <input type="text" id="pf-sym" class="pf-input pf-sym" placeholder="Symbol (e.g. RELIANCE)" autocomplete="off" onkeydown="if(event.key==='Enter')document.getElementById('pf-qty').focus()">
+        <input type="number" id="pf-qty" class="pf-input pf-qty" placeholder="Qty" onkeydown="if(event.key==='Enter')document.getElementById('pf-price').focus()">
+        <input type="number" id="pf-price" class="pf-input pf-price" placeholder="Price" onkeydown="if(event.key==='Enter')addPfItem()">
         <button class="pf-btn" onclick="addPfItem()">ADD</button>
       </div>
 
@@ -2162,12 +2162,12 @@
           <label style="color:var(--text-muted);font-family:var(--mono);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px">
             <input type="checkbox" id="liveToggle" checked onchange="handleLiveToggleChange()"> ⚡ Live Auto-Update (15s)
           </label>
-          <select id="risk-mode" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-family:var(--mono);font-size:11px;outline:none;cursor:pointer">
+          <select id="risk-mode" onchange="onConfigChange()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-family:var(--mono);font-size:11px;outline:none;cursor:pointer">
             <option value="intraday">⚡ Intraday</option>
             <option value="swing" selected>🌊 Swing</option>
             <option value="beginner">🛡️ Beginner</option>
           </select>
-          <select id="lang-toggle" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-family:var(--mono);font-size:11px;outline:none;cursor:pointer">
+          <select id="lang-toggle" onchange="onConfigChange()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-family:var(--mono);font-size:11px;outline:none;cursor:pointer">
             <option value="en" selected>🇺🇸 English</option>
             <option value="hi">🇮🇳 Hinglish</option>
           </select>
@@ -2993,6 +2993,9 @@
           if (lastUp) lastUp.textContent = 'Last Updated: ' + timeStr + ' IST';
           if (syncBadge) syncBadge.textContent = 'LIVE SYNC (' + timeStr.split(' ')[0] + ')';
         }
+        if (portfolio && portfolio.length > 0) {
+          loadPortfolio(true);
+        }
       } catch (err) {
         console.warn('Background quote sync error:', err.message);
         if (syncBadge) syncBadge.textContent = 'SYNC RETRYING';
@@ -3149,6 +3152,7 @@
 
       try {
         const data = await getForecastData(useLive);
+        window.lastForecastData = data;
 
         document.getElementById('think-status').textContent = 'Generating AI Strategies...';
         await new Promise(resolve => setTimeout(resolve, 800));
@@ -3165,6 +3169,30 @@
       thinking.classList.remove('show');
       btn.disabled = false;
       btn.innerHTML = '<span class="btn-icon">🔮</span> RUN AI ANALYSIS — MARKET FORECAST';
+    }
+
+    function onConfigChange() {
+      if (!window.lastForecastData) {
+        runAnalysis();
+        return;
+      }
+      const lang = document.getElementById('lang-toggle')?.value || 'en';
+      const risk = document.getElementById('risk-mode')?.value || 'swing';
+      const d = window.lastForecastData;
+      const newStrategy = generateStrategyText(d.nifty_current, d.nifty_upside, d.nifty_downside, d.sensex_current, d.sensex_upside, d.sensex_downside, risk, lang);
+
+      const nFormattedText = d.nifty_current.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const sFormattedText = d.sensex_current.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      let newAnalysis = "";
+      if (lang === 'hi') {
+        newAnalysis = `🟢 LIVE DATA CONNECTED:\n\nAbhi NIFTY 50 ₹${nFormattedText} par (${d.nifty_change_pct >= 0 ? '+' : ''}${d.nifty_change_pct.toFixed(2)}%) aur SENSEX ₹${sFormattedText} par (${d.sensex_change_pct >= 0 ? '+' : ''}${d.sensex_change_pct.toFixed(2)}%) trade kar raha hai.\nMarket ka structure kal ke liye ${d.nifty_bias.toLowerCase()} lag raha hai.\n\nImportant points:\n1. Global Markets: US indices direction set kar rahe hain.\n2. Sectors: Bank aur IT stocks par nazar rakhein.\n3. Risk Mode: Aapne '${risk.toUpperCase()}' mode select kiya hai.`;
+      } else {
+        newAnalysis = `🟢 LIVE DATA CONNECTED:\n\nCurrently, NIFTY 50 is trading at ₹${nFormattedText} (${d.nifty_change_pct >= 0 ? '+' : ''}${d.nifty_change_pct.toFixed(2)}%) and SENSEX is at ₹${sFormattedText} (${d.sensex_change_pct >= 0 ? '+' : ''}${d.sensex_change_pct.toFixed(2)}%).\nThe market structure shows a ${d.nifty_bias.toLowerCase()} stance for tomorrow.\n\nKey factors:\n1. Global Markets: US indices are providing direction.\n2. Sector Rotation: Expect activity in banking/IT.\n3. Risk Mode: You are using '${risk.toUpperCase()}' profile.`;
+      }
+      const out = document.getElementById('analysis-output');
+      if (out) out.innerHTML = `<pre style="font-family:var(--mono);font-size:11px;line-height:1.9;color:var(--text-dim);white-space:pre-wrap">${newAnalysis}</pre>`;
+      const st = document.getElementById('strategy-output');
+      if (st) st.innerHTML = `<pre style="font-family:var(--mono);font-size:11px;line-height:1.9;color:var(--text-dim);white-space:pre-wrap">${newStrategy}</pre>`;
     }
 
     // Init visuals
@@ -3230,6 +3258,19 @@
       const symbol = sym || document.getElementById('chart-symbol')?.value || 'BSE:SENSEX';
       const container = document.getElementById('tv-chart');
       if (!container) return;
+
+      const selectEl = document.getElementById('chart-symbol');
+      if (selectEl && sym) {
+        let opt = Array.from(selectEl.options).find(o => o.value === symbol);
+        if (!opt) {
+          opt = document.createElement('option');
+          opt.value = symbol;
+          opt.textContent = symbol.replace('BSE:', '').replace('NSE:', '') + ' (Active)';
+          selectEl.appendChild(opt);
+        }
+        selectEl.value = symbol;
+      }
+
       const theme = document.documentElement.getAttribute('data-theme') || 'dark';
       const isDark = theme !== 'light';
       container.innerHTML = '';
@@ -3305,6 +3346,30 @@
       'TRENT': 'TRENT.NS', 'ZOMATO': 'ZOMATO.NS', 'PAYTM': 'PAYTM.NS', 'IRCTC': 'IRCTC.NS',
       'NIFTY 50': '^NSEI', 'SENSEX': '^BSESN'
     };
+    function mapToTVSymbol(sym) {
+      if (!sym) return 'BSE:SENSEX';
+      if (sym === '^NSEI' || sym === 'NIFTY' || sym === 'NIFTY 50') return 'NSE:NIFTY';
+      if (sym === '^BSESN' || sym === 'SENSEX') return 'BSE:SENSEX';
+      if (sym === '^NSEBANK' || sym === 'BANKNIFTY') return 'NSE:BANKNIFTY';
+      if (sym.endsWith('.NS')) return 'NSE:' + sym.replace('.NS', '');
+      if (sym.endsWith('.BO')) return 'BSE:' + sym.replace('.BO', '');
+      if (sym.includes(':')) return sym;
+      return 'NSE:' + sym;
+    }
+
+    let searchDebounce = null;
+    function onSearchInput() {
+      clearTimeout(searchDebounce);
+      const val = document.getElementById('stock-search').value.trim();
+      if (!val) {
+        document.getElementById('search-results').classList.remove('show');
+        return;
+      }
+      searchDebounce = setTimeout(() => {
+        searchStock();
+      }, 350);
+    }
+
     async function searchStock() {
       const q = document.getElementById('stock-search').value.trim();
       const results = document.getElementById('search-results');
@@ -3317,11 +3382,17 @@
         let matches = [];
         const timestamp = Date.now();
         if (API_BASE) {
-          const searchData = await apiJSON(`/api/search?q=${encodeURIComponent(q)}&_t=${timestamp}`);
-          if (searchData.quotes && searchData.quotes.length > 0) {
-            matches = searchData.quotes.filter(q => q.quoteType === 'EQUITY' || q.quoteType === 'INDEX').slice(0, 5);
+          try {
+            const searchData = await apiJSON(`/api/search?q=${encodeURIComponent(q)}&_t=${timestamp}`);
+            if (searchData.quotes && searchData.quotes.length > 0) {
+              matches = searchData.quotes.filter(q => q.quoteType === 'EQUITY' || q.quoteType === 'INDEX').slice(0, 5);
+            }
+          } catch (apiErr) {
+            console.warn('Backend search API failed, falling back to local map:', apiErr);
           }
-        } else {
+        }
+
+        if (matches.length === 0) {
           const localMatches = Object.keys(STOCK_MAP).filter(k => k.includes(q.toUpperCase())).slice(0, 5);
           matches = localMatches.map(k => ({ shortname: k, symbol: STOCK_MAP[k] }));
         }
@@ -3332,31 +3403,44 @@
         }
 
         const symbols = matches.map(m => m.symbol).join(',');
-        const json = API_BASE
-          ? { spark: { result: (await apiJSON(`/api/quotes?symbols=${encodeURIComponent(symbols)}&_t=${timestamp}`)).result || [] } }
-          : await fetch(`${LEGACY_PROXY}/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/spark?symbols=${symbols}&range=1d&interval=1m&_nocache=${timestamp}`)}&_t=${timestamp}`).then(res => res.json());
+        let quoteList = [];
+        try {
+          if (API_BASE) {
+            const data = await apiJSON(`/api/quotes?symbols=${encodeURIComponent(symbols)}&_t=${timestamp}`);
+            quoteList = data.result || [];
+          } else {
+            const res = await fetch(`${LEGACY_PROXY}/?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v7/finance/spark?symbols=${symbols}&range=1d&interval=1m&_nocache=${timestamp}`)}&_t=${timestamp}`).then(r => r.json());
+            quoteList = res.spark?.result || [];
+          }
+        } catch (qErr) {
+          console.warn('Could not fetch quote spark for search matches:', qErr);
+        }
 
         let html = '';
         matches.forEach(match => {
           const sym = match.symbol;
           const name = match.shortname || match.longname || match.symbol;
-          const spark = json.spark?.result?.find(r => r.symbol === sym);
-          if (spark && spark.response?.[0]?.meta) {
-            const meta = spark.response[0].meta;
-            const price = meta.regularMarketPrice?.toFixed(2) || '--';
-            const prev = meta.chartPreviousClose || meta.regularMarketPrice;
-            const change = prev ? ((meta.regularMarketPrice - prev) / prev * 100).toFixed(2) : '0.00';
-            const isUp = parseFloat(change) >= 0;
-            // Clean symbol for TradingView (remove .NS or .BO suffix and add BSE prefix to avoid embed errors)
-            const tvSymbol = sym.includes('.') ? 'BSE:' + sym.split('.')[0] : sym;
+          const spark = quoteList.find(r => r.symbol === sym);
+          const parsed = parseSparkItem(spark);
+          const tvSymbol = mapToTVSymbol(sym);
+
+          if (parsed && parsed.price) {
+            const price = parsed.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const change = parsed.pct.toFixed(2);
+            const isUp = parsed.pct >= 0;
             html += `<div class="search-result-item" style="cursor:pointer" onclick="document.getElementById('stock-search').value=''; document.getElementById('search-results').classList.remove('show'); initTVChart('${tvSymbol}'); window.scrollTo({top: document.getElementById('tv-chart').offsetTop - 100, behavior: 'smooth'});">
-          <div class="sr-name">${name}</div>
-          <div class="sr-row">
-            <span class="sr-price">₹${price}</span>
-            <span class="sr-change" style="color:var(--${isUp ? 'green' : 'red'})">${isUp ? '▲' : '▼'} ${Math.abs(change)}%</span>
-          </div>
-          <div class="sr-detail">${meta.currency || 'INR'} • Click to view chart</div>
-        </div>`;
+              <div class="sr-name">${escapeHTML(name)} <span style="font-size:10px;color:var(--text-muted)">(${escapeHTML(sym)})</span></div>
+              <div class="sr-row">
+                <span class="sr-price">₹${price}</span>
+                <span class="sr-change" style="color:var(--${isUp ? 'green' : 'red'})">${isUp ? '▲ +' : '▼ -'}${Math.abs(change)}%</span>
+              </div>
+              <div class="sr-detail">Click to view TradingView chart</div>
+            </div>`;
+          } else {
+            html += `<div class="search-result-item" style="cursor:pointer" onclick="document.getElementById('stock-search').value=''; document.getElementById('search-results').classList.remove('show'); initTVChart('${tvSymbol}'); window.scrollTo({top: document.getElementById('tv-chart').offsetTop - 100, behavior: 'smooth'});">
+              <div class="sr-name">${escapeHTML(name)} <span style="font-size:10px;color:var(--text-muted)">(${escapeHTML(sym)})</span></div>
+              <div class="sr-detail">Click to view TradingView chart</div>
+            </div>`;
           }
         });
         results.innerHTML = html || '<div class="search-result-item"><span class="sr-detail">No data available</span></div>';
@@ -3535,20 +3619,25 @@
     // SIP CALCULATOR
     // ═══════════════════════════════════════════
     function calcSIP() {
-      const p = parseFloat(document.getElementById('sip-amt').value);
-      const r = parseFloat(document.getElementById('sip-ret').value);
-      const y = parseFloat(document.getElementById('sip-yr').value);
+      const p = parseFloat(document.getElementById('sip-amt').value) || 0;
+      const r = parseFloat(document.getElementById('sip-ret').value) || 0;
+      const y = parseFloat(document.getElementById('sip-yr').value) || 0;
 
       document.getElementById('sip-amt-val').innerText = '₹' + p.toLocaleString('en-IN');
       document.getElementById('sip-ret-val').innerText = r + '%';
       document.getElementById('sip-yr-val').innerText = y + ' Yrs';
 
       const n = y * 12;
-      const i = (r / 100) / 12;
-
-      // Future Value = P × ({[1 + i]^n - 1} / i) × (1 + i)
-      const fv = p * ((Math.pow(1 + i, n) - 1) / i) * (1 + i);
+      let fv = 0;
       const invested = p * n;
+
+      if (r === 0) {
+        fv = invested;
+      } else {
+        const i = (r / 100) / 12;
+        // Future Value = P × ({[1 + i]^n - 1} / i) × (1 + i)
+        fv = p * ((Math.pow(1 + i, n) - 1) / i) * (1 + i);
+      }
       const gains = fv - invested;
 
       document.getElementById('sip-total').innerText = '₹' + Math.round(fv).toLocaleString('en-IN');
@@ -3570,13 +3659,13 @@
       const qty = parseFloat(document.getElementById('pf-qty').value);
       const price = parseFloat(document.getElementById('pf-price').value);
 
-      if (!sym || !qty || !price) {
-        alert('Please fill all fields (Symbol, Qty, Price)');
+      if (!sym || !qty || isNaN(qty) || !price || isNaN(price)) {
+        alert('Please fill all fields with valid numbers (Symbol, Qty, Price)');
         return;
       }
 
       // Automatically append .NS (NSE) if user didn't specify an exchange suffix
-      if (!sym.includes('.')) {
+      if (!sym.includes('.') && !sym.startsWith('^')) {
         sym += '.NS';
       }
 
@@ -3596,25 +3685,31 @@
       loadPortfolio();
     }
 
-    async function loadPortfolio() {
+    async function loadPortfolio(silent = false) {
       const tbody = document.getElementById('pf-tbody');
+      if (!tbody) return;
       if (portfolio.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Add stocks to track portfolio</td></tr>';
         return;
       }
 
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--cyan)">Fetching live prices...</td></tr>';
+      if (!silent) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--cyan)">Fetching live prices...</td></tr>';
+      }
 
       try {
         const symbols = [...new Set(portfolio.map(p => p.symbol))];
         const quoteData = await apiJSON('/api/quotes?symbols=' + encodeURIComponent(symbols.join(',')));
         const quotes = {};
         
-        if (quoteData.result) {
+        if (quoteData && quoteData.result) {
           quoteData.result.forEach(q => {
-            // Yahoo Finance Spark API returns regularMarketPrice in meta
-            const price = q.regularMarketPrice ?? q.meta?.regularMarketPrice;
-            if (price) quotes[q.symbol] = price;
+            const parsed = parseSparkItem(q);
+            if (parsed && parsed.price) {
+              quotes[parsed.sym || q.symbol] = parsed.price;
+            } else if (q.regularMarketPrice != null) {
+              quotes[q.symbol] = q.regularMarketPrice;
+            }
           });
         }
 
@@ -3627,7 +3722,7 @@
           const invested = item.qty * item.price;
           const current = item.qty * ltp;
           const pnl = current - invested;
-          const pnlPct = (pnl / invested) * 100;
+          const pnlPct = invested > 0 ? (pnl / invested) * 100 : 0;
           
           totalInvested += invested;
           totalCurrent += current;
@@ -3637,15 +3732,15 @@
 
           html += `
             <tr>
-              <td style="font-weight:bold;color:var(--text)">${item.symbol}</td>
+              <td style="font-weight:bold;color:var(--text)">${escapeHTML(item.symbol)}</td>
               <td>${item.qty}</td>
-              <td>₹${item.price.toFixed(1)}</td>
-              <td>₹${ltp.toFixed(1)}</td>
+              <td>₹${item.price.toFixed(2)}</td>
+              <td>₹${ltp.toFixed(2)}</td>
               <td style="color:${pnlColor}">
                 ${sign}₹${Math.round(pnl).toLocaleString('en-IN')}<br>
-                <span style="font-size:9px">(${sign}${pnlPct.toFixed(1)}%)</span>
+                <span style="font-size:9px">(${sign}${pnlPct.toFixed(2)}%)</span>
               </td>
-              <td class="pf-del" onclick="deletePfItem(${i})">✕</td>
+              <td class="pf-del" onclick="deletePfItem(${i})" title="Delete">✕</td>
             </tr>
           `;
         });
@@ -3664,7 +3759,9 @@
 
         tbody.innerHTML = html;
       } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--red)">Failed to fetch live prices. Please check symbols.</td></tr>`;
+        if (!silent) {
+          tbody.innerHTML = `<tr><td colspan="6" style="color:var(--red)">Failed to fetch live prices. Please check symbols.</td></tr>`;
+        }
       }
     }
 
