@@ -15,7 +15,7 @@ function jsonResponse(body, status = 200) {
     headers: {
       ...corsHeaders,
       'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'no-store'
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
     }
   });
 }
@@ -23,8 +23,14 @@ function jsonResponse(body, status = 200) {
 async function fetchJSON(url) {
   const response = await fetch(url, {
     headers: {
-      'User-Agent': 'MarketOracle/1.0',
-      'Accept': 'application/json'
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      'Accept': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    },
+    cf: {
+      cacheTtl: 0,
+      cacheEverything: false
     }
   });
 
@@ -40,17 +46,34 @@ function sanitizeSymbols(value) {
     .split(',')
     .map(symbol => symbol.trim())
     .filter(Boolean)
-    .filter(symbol => /^[A-Z0-9.^=-]+$/i.test(symbol))
-    .slice(0, 25);
+    .filter(symbol => /^[A-Z0-9.^=_-]+$/i.test(symbol))
+    .slice(0, 30);
 }
 
 async function getQuotes(symbols) {
-  const url = new URL(YAHOO_SPARK_URL);
-  url.searchParams.set('symbols', symbols.join(','));
-  url.searchParams.set('range', '1d');
-  url.searchParams.set('interval', '1m');
-  const data = await fetchJSON(url.toString());
-  return data.spark?.result || [];
+  const baseUrls = [
+    'https://query1.finance.yahoo.com/v7/finance/spark',
+    'https://query2.finance.yahoo.com/v7/finance/spark'
+  ];
+  let lastError = null;
+
+  for (const baseUrl of baseUrls) {
+    try {
+      const url = new URL(baseUrl);
+      url.searchParams.set('symbols', symbols.join(','));
+      url.searchParams.set('range', '1d');
+      url.searchParams.set('interval', '1m');
+      url.searchParams.set('_nocache', String(Date.now()));
+      const data = await fetchJSON(url.toString());
+      if (data && data.spark && Array.isArray(data.spark.result)) {
+        return data.spark.result;
+      }
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('Failed to retrieve spark quotes from all upstreams');
 }
 
 async function searchYahoo(query, count = 5) {

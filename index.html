@@ -839,6 +839,60 @@
       box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
     }
 
+    .quick-refresh-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 1px;
+      transition: all 0.25s ease;
+    }
+
+    .quick-refresh-btn:hover {
+      color: var(--text);
+      border-color: var(--blue);
+      box-shadow: 0 0 12px rgba(96, 165, 250, 0.25);
+    }
+
+    .quick-refresh-btn:active {
+      transform: scale(0.96);
+    }
+
+    .spinning {
+      display: inline-block;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .price-flash-up {
+      animation: flashGreen 1.2s ease-out;
+    }
+
+    .price-flash-dn {
+      animation: flashRed 1.2s ease-out;
+    }
+
+    @keyframes flashGreen {
+      0% { background-color: rgba(45, 212, 191, 0.4); border-radius: 4px; }
+      100% { background-color: transparent; }
+    }
+
+    @keyframes flashRed {
+      0% { background-color: rgba(251, 113, 133, 0.4); border-radius: 4px; }
+      100% { background-color: transparent; }
+    }
+
     .btn-icon {
       font-size: 16px;
     }
@@ -1714,10 +1768,13 @@
       </div>
       <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">☀️ Light</button>
       <div class="mkt-status" id="mkt-status">⏳ CHECKING...</div>
-      <div class="live-badge">
+      <div class="live-badge" id="live-badge" title="Live Auto-Sync Active">
         <div class="live-dot"></div>
-        AI ENGINE ONLINE
+        <span id="sync-status">LIVE SYNC (15s)</span>
       </div>
+      <button class="quick-refresh-btn" id="quick-refresh-btn" onclick="triggerManualRefresh()" title="Refresh live market data now">
+        <span id="quick-refresh-icon">🔄</span> Refresh
+      </button>
       <div class="current-time" id="clock">--:--:-- IST</div>
     </div>
   </header>
@@ -2102,8 +2159,8 @@
       <!-- BUTTON BLOCK -->
       <div style="padding: 0 20px 20px">
         <div style="display:flex; justify-content:center; gap: 15px; margin-bottom:12px; align-items:center; flex-wrap:wrap">
-          <label style="color:var(--text-muted);font-family:var(--mono);font-size:12px;">
-            <input type="checkbox" id="liveToggle" checked style="margin-right:6px"> Live Data
+          <label style="color:var(--text-muted);font-family:var(--mono);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px">
+            <input type="checkbox" id="liveToggle" checked onchange="handleLiveToggleChange()"> ⚡ Live Auto-Update (15s)
           </label>
           <select id="risk-mode" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-family:var(--mono);font-size:11px;outline:none;cursor:pointer">
             <option value="intraday">⚡ Intraday</option>
@@ -2115,10 +2172,15 @@
             <option value="hi">🇮🇳 Hinglish</option>
           </select>
         </div>
-        <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">
-          <span class="btn-icon">🔮</span>
-          RUN AI ANALYSIS — MARKET FORECAST
-        </button>
+        <div style="display:flex; gap:10px; width:100%">
+          <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()" style="flex:1">
+            <span class="btn-icon">🔮</span>
+            RUN AI ANALYSIS — MARKET FORECAST
+          </button>
+          <button class="quick-refresh-btn" id="mainRefreshBtn" onclick="triggerManualRefresh()" title="Instant Live Quote Refresh" style="padding:0 18px;font-size:12px;font-weight:700">
+            <span id="main-refresh-icon">🔄</span> REFRESH
+          </button>
+        </div>
         <div
           style="text-align:center;font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-top:10px;letter-spacing:1px">
           ⚠️ DISCLAIMER: AI/Simulation-generated forecast | Not SEBI-registered investment advice | Trade at your own
@@ -2138,7 +2200,9 @@
       <div style="display:flex;gap:10px;align-items:center">
         <select id="chart-symbol" onchange="initTVChart(this.value)" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-family:var(--mono);font-size:10px;letter-spacing:1px;cursor:pointer;outline:none;max-height:300px">
           <optgroup label="📊 INDIAN INDEX">
-            <option value="BSE:SENSEX">SENSEX</option>
+            <option value="BSE:SENSEX">SENSEX (BSE)</option>
+            <option value="NSE:NIFTY">NIFTY 50 (NSE)</option>
+            <option value="NSE:BANKNIFTY">BANK NIFTY (NSE)</option>
           </optgroup>
           <optgroup label="🌍 GLOBAL INDICES">
             <option value="FOREXCOM:NSXUSD">🇺🇸 NASDAQ 100</option>
@@ -2400,6 +2464,40 @@
     }
 
     // ═══════════════════════════════════════════
+    // PARSE SPARK ITEM HELPER
+    // ═══════════════════════════════════════════
+    function parseSparkItem(item) {
+      if (!item) return null;
+      const sym = item.symbol;
+      const meta = item?.response?.[0]?.meta || item?.meta || item;
+      if (!meta || meta.regularMarketPrice == null) return null;
+
+      const price = Number(meta.regularMarketPrice);
+      const pct = (meta.regularMarketChangePercent != null)
+        ? Number(meta.regularMarketChangePercent)
+        : ((meta.fulldayChangePercent != null) ? Number(meta.fulldayChangePercent) : null);
+      const pts = (meta.regularMarketChange != null)
+        ? Number(meta.regularMarketChange)
+        : ((meta.fulldayChange != null) ? Number(meta.fulldayChange) : (pct != null ? price * (pct / (100 + pct)) : 0));
+      const prev = price - pts;
+      const finalPct = pct != null ? pct : (prev > 0 ? (pts / prev) * 100 : 0);
+
+      return {
+        sym,
+        price,
+        pts,
+        pct: finalPct,
+        prev,
+        time: meta.regularMarketTime
+      };
+    }
+
+    let lastKnownSensexPrice = null;
+    let lastKnownNiftyPrice = null;
+    let autoRefreshTimer = null;
+    let isLiveUpdating = false;
+
+    // ═══════════════════════════════════════════
     // GLOBAL MARKETS LIST
     // ═══════════════════════════════════════════
     const globalsList = [
@@ -2415,7 +2513,7 @@
       { name: 'NIFTY FIN SRV', sym: '^CNXFIN', prefix: '₹', country: 'SECTOR' },
       { name: 'NIFTY IT', sym: '^CNXIT', prefix: '₹', country: 'SECTOR' },
       { name: 'NIFTY AUTO', sym: '^CNXAUTO', prefix: '₹', country: 'SECTOR' },
-      { name: 'NIFTY MIDCAP', sym: '^CNXMID', prefix: '₹', country: 'SECTOR' },
+      { name: 'NIFTY MIDCAP', sym: '^NSEMDCP50', prefix: '₹', country: 'SECTOR' },
       { name: 'NIFTY PHARMA', sym: '^CNXPHARMA', prefix: '₹', country: 'SECTOR' },
       { name: 'INDIA VIX', sym: '^INDIAVIX', prefix: '', country: 'SECTOR' }
     ];
@@ -2424,7 +2522,7 @@
     // SINGLE FAST FETCH VIA PERSONAL PROXY (Spark API)
     // ═══════════════════════════════════════════
     async function fetchAllMarketData() {
-      const symbols = ['^NSEI', '^BSESN', '^DJI', '^GSPC', '^IXIC', '^N225', '^HSI', 'CL=F', 'GC=F', 'INR=X', '^NSEBANK', '^CNXFIN', '^CNXIT', '^CNXAUTO', '^CNXMID', '^CNXPHARMA', '^INDIAVIX'];
+      const symbols = ['^NSEI', '^BSESN', '^DJI', '^GSPC', '^IXIC', '^N225', '^HSI', 'CL=F', 'GC=F', 'INR=X', '^NSEBANK', '^CNXFIN', '^CNXIT', '^CNXAUTO', '^NSEMDCP50', '^CNXPHARMA', '^INDIAVIX'];
       const timestamp = Date.now();
 
       if (API_BASE) {
@@ -2482,29 +2580,26 @@
         if (liveDataArray && liveDataArray.length > 0) {
           isLiveSuccess = true;
           liveDataArray.forEach(item => {
-            const sym = item.symbol;
+            const parsed = parseSparkItem(item);
+            if (!parsed) return;
+            const sym = parsed.sym;
 
-            // Get safe meta block from Spark API
-            const meta = item?.response?.[0]?.meta || item?.meta;
-
-            if (meta && meta.regularMarketPrice) {
-              const price = meta.regularMarketPrice;
-              const prev = meta.previousClose || meta.chartPreviousClose || price;
-
-              if (sym === '^NSEI') nQuote = { current: price, prev: prev };
-              else if (sym === '^BSESN') sQuote = { current: price, prev: prev };
-              else {
-                const match = globalsList.find(g => g.sym === sym);
-                if (match) {
-                  const pct = prev ? ((price - prev) / prev) * 100 : 0;
-                  fetchedGlobals.push({
-                    name: match.name,
-                    country: match.country,
-                    val: match.prefix + (price > 1000 ? price.toLocaleString('en-US', { maximumFractionDigits: 2 }) : price.toFixed(2)),
-                    change: pct,
-                    impact: pct >= 0.2 ? 'BULLISH' : pct <= -0.2 ? 'BEARISH' : 'NEUTRAL'
-                  });
-                }
+            if (sym === '^NSEI') {
+              nQuote = { current: parsed.price, prev: parsed.prev, change: parsed.pts, pct: parsed.pct };
+            } else if (sym === '^BSESN') {
+              sQuote = { current: parsed.price, prev: parsed.prev, change: parsed.pts, pct: parsed.pct };
+            } else {
+              const match = globalsList.find(g => g.sym === sym);
+              if (match) {
+                fetchedGlobals.push({
+                  name: match.name,
+                  country: match.country,
+                  sym: match.sym,
+                  val: match.prefix + (parsed.price > 1000 ? parsed.price.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 }) : parsed.price.toFixed(2)),
+                  change: parsed.pct,
+                  changePts: parsed.pts,
+                  impact: parsed.pct >= 0.2 ? 'BULLISH' : parsed.pct <= -0.2 ? 'BEARISH' : 'NEUTRAL'
+                });
               }
             }
           });
@@ -2512,19 +2607,20 @@
       }
 
       // Dynamic Time-based Base Values for offline simulation
-      // This prevents the fixed 43,828 Dow Jones from appearing if offline
       const randomDrift = () => (Math.random() - 0.5) * 0.01;
 
-      const baseNifty = 24100 * (1 + randomDrift());
-      const baseSensex = 79400 * (1 + randomDrift());
+      const baseNifty = 25400 * (1 + randomDrift());
+      const baseSensex = 82500 * (1 + randomDrift());
 
-      const nCurrent = nQuote ? Math.round(nQuote.current) : Math.round(baseNifty);
-      const nPrev = nQuote ? Math.round(nQuote.prev) : Math.round(baseNifty * 0.995);
-      const sCurrent = sQuote ? Math.round(sQuote.current) : Math.round(baseSensex);
-      const sPrev = sQuote ? Math.round(sQuote.prev) : Math.round(baseSensex * 0.995);
+      const nCurrent = nQuote ? nQuote.current : baseNifty;
+      const nPrev = nQuote ? nQuote.prev : (baseNifty * 0.995);
+      const sCurrent = sQuote ? sQuote.current : baseSensex;
+      const sPrev = sQuote ? sQuote.prev : (baseSensex * 0.995);
 
-      const nChangePct = nPrev ? ((nCurrent - nPrev) / nPrev) * 100 : 0;
-      const sChangePct = sPrev ? ((sCurrent - sPrev) / sPrev) * 100 : 0;
+      const nChangePts = nQuote ? nQuote.change : (nCurrent - nPrev);
+      const sChangePts = sQuote ? sQuote.change : (sCurrent - sPrev);
+      const nChangePct = nQuote ? nQuote.pct : (nPrev ? (nChangePts / nPrev) * 100 : 0);
+      const sChangePct = sQuote ? sQuote.pct : (sPrev ? (sChangePts / sPrev) * 100 : 0);
 
       const nBias = nChangePct >= 0.2 ? 'BULLISH' : nChangePct <= -0.2 ? 'BEARISH' : 'NEUTRAL';
       const sBias = sChangePct >= 0.2 ? 'BULLISH' : sChangePct <= -0.2 ? 'BEARISH' : 'NEUTRAL';
@@ -2535,24 +2631,24 @@
       const sUpside = Math.round(sCurrent * (1 + volatility));
       const sDownside = Math.round(sCurrent * (1 - volatility));
 
-      // Dynamic Fallbacks for Global Markets (No more fixed numbers!)
+      // Dynamic Fallbacks for Global Markets
       const defaultGlobals = globalsList.map(g => {
         let bVal = 0;
-        if (g.sym === '^DJI') bVal = 42000;
-        else if (g.sym === '^GSPC') bVal = 5800;
-        else if (g.sym === '^IXIC') bVal = 18000;
-        else if (g.sym === '^N225') bVal = 38000;
-        else if (g.sym === '^HSI') bVal = 20500;
-        else if (g.sym === 'CL=F') bVal = 75;
-        else if (g.sym === 'GC=F') bVal = 2400;
-        else if (g.sym === 'INR=X') bVal = 83.5;
-        else if (g.sym === '^NSEBANK') bVal = 51200;
-        else if (g.sym === '^CNXFIN') bVal = 22800;
-        else if (g.sym === '^CNXIT') bVal = 35600;
-        else if (g.sym === '^CNXAUTO') bVal = 24500;
-        else if (g.sym === '^CNXMID') bVal = 55000;
-        else if (g.sym === '^CNXPHARMA') bVal = 19200;
-        else if (g.sym === '^INDIAVIX') bVal = 14.5;
+        if (g.sym === '^DJI') bVal = 51600;
+        else if (g.sym === '^GSPC') bVal = 7400;
+        else if (g.sym === '^IXIC') bVal = 24500;
+        else if (g.sym === '^N225') bVal = 58800;
+        else if (g.sym === '^HSI') bVal = 23500;
+        else if (g.sym === 'CL=F') bVal = 86;
+        else if (g.sym === 'GC=F') bVal = 3850;
+        else if (g.sym === 'INR=X') bVal = 93.5;
+        else if (g.sym === '^NSEBANK') bVal = 62200;
+        else if (g.sym === '^CNXFIN') bVal = 30100;
+        else if (g.sym === '^CNXIT') bVal = 31600;
+        else if (g.sym === '^CNXAUTO') bVal = 27700;
+        else if (g.sym === '^NSEMDCP50') bVal = 17800;
+        else if (g.sym === '^CNXPHARMA') bVal = 28100;
+        else if (g.sym === '^INDIAVIX') bVal = 15.5;
 
         let dVal = bVal * (1 + randomDrift());
         let cPct = randomDrift() * 100;
@@ -2560,8 +2656,10 @@
         return {
           name: g.name,
           country: g.country,
-          val: g.prefix + (dVal > 1000 ? dVal.toLocaleString('en-US', { maximumFractionDigits: 2 }) : dVal.toFixed(2)),
+          sym: g.sym,
+          val: g.prefix + (dVal > 1000 ? dVal.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 }) : dVal.toFixed(2)),
           change: cPct,
+          changePts: (dVal * (cPct / 100)),
           impact: cPct >= 0 ? 'BULLISH' : 'BEARISH'
         };
       });
@@ -2572,8 +2670,18 @@
       });
 
       // Update Top Ticker
-      tickerData[0] = { name: 'SENSEX', val: sCurrent.toLocaleString('en-IN'), chg: (sChangePct >= 0 ? '+' : '') + sChangePct.toFixed(2) + '%', up: sChangePct >= 0 };
-      tickerData[1] = { name: 'NIFTY 50', val: nCurrent.toLocaleString('en-IN'), chg: (nChangePct >= 0 ? '+' : '') + nChangePct.toFixed(2) + '%', up: nChangePct >= 0 };
+      tickerData[0] = {
+        name: 'SENSEX',
+        val: sCurrent.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        chg: (sChangePct >= 0 ? '+' : '') + sChangePct.toFixed(2) + '%',
+        up: sChangePct >= 0
+      };
+      tickerData[1] = {
+        name: 'NIFTY 50',
+        val: nCurrent.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        chg: (nChangePct >= 0 ? '+' : '') + nChangePct.toFixed(2) + '%',
+        up: nChangePct >= 0
+      };
 
       finalGlobals.forEach(fg => {
         const tIdx = tickerData.findIndex(t => t.name === fg.name);
@@ -2617,19 +2725,22 @@
       const lang = document.getElementById('lang-toggle')?.value || 'en';
       const risk = document.getElementById('risk-mode')?.value || 'swing';
 
+      const nFormattedText = nCurrent.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const sFormattedText = sCurrent.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
       if (isLiveSuccess) {
         if (lang === 'hi') {
-          analysisFinalText = `🟢 LIVE DATA CONNECTED:\n\nAbhi NIFTY 50 ₹${nCurrent.toLocaleString('en-IN')} par aur SENSEX ₹${sCurrent.toLocaleString('en-IN')} par trade kar raha hai.\nMarket ka structure kal ke liye ${nBias.toLowerCase()} lag raha hai.\n\nImportant points:\n1. Global Markets: US indices direction set kar rahe hain.\n2. Sectors: Bank aur IT stocks par nazar rakhein.\n3. Risk Mode: Aapne '${risk.toUpperCase()}' mode select kiya hai.`;
+          analysisFinalText = `🟢 LIVE DATA CONNECTED:\n\nAbhi NIFTY 50 ₹${nFormattedText} par (${nChangePct >= 0 ? '+' : ''}${nChangePct.toFixed(2)}%) aur SENSEX ₹${sFormattedText} par (${sChangePct >= 0 ? '+' : ''}${sChangePct.toFixed(2)}%) trade kar raha hai.\nMarket ka structure kal ke liye ${nBias.toLowerCase()} lag raha hai.\n\nImportant points:\n1. Global Markets: US indices direction set kar rahe hain.\n2. Sectors: Bank aur IT stocks par nazar rakhein.\n3. Risk Mode: Aapne '${risk.toUpperCase()}' mode select kiya hai.`;
         } else {
-          analysisFinalText = `🟢 LIVE DATA CONNECTED:\n\nCurrently, NIFTY 50 is trading at ₹${nCurrent.toLocaleString('en-IN')} and SENSEX is at ₹${sCurrent.toLocaleString('en-IN')}.\nThe market structure shows a ${nBias.toLowerCase()} stance for tomorrow.\n\nKey factors:\n1. Global Markets: US indices are providing direction.\n2. Sector Rotation: Expect activity in banking/IT.\n3. Risk Mode: You are using '${risk.toUpperCase()}' profile.`;
+          analysisFinalText = `🟢 LIVE DATA CONNECTED:\n\nCurrently, NIFTY 50 is trading at ₹${nFormattedText} (${nChangePct >= 0 ? '+' : ''}${nChangePct.toFixed(2)}%) and SENSEX is at ₹${sFormattedText} (${sChangePct >= 0 ? '+' : ''}${sChangePct.toFixed(2)}%).\nThe market structure shows a ${nBias.toLowerCase()} stance for tomorrow.\n\nKey factors:\n1. Global Markets: US indices are providing direction.\n2. Sector Rotation: Expect activity in banking/IT.\n3. Risk Mode: You are using '${risk.toUpperCase()}' profile.`;
         }
       } else {
-        analysisFinalText = `🟡 OFFLINE SIMULATION MODE:\n\nNIFTY 50 is simulated at ₹${nCurrent.toLocaleString('en-IN')}.\nThe market structure shows a ${nBias.toLowerCase()} stance for tomorrow.`;
+        analysisFinalText = `🟡 OFFLINE SIMULATION MODE:\n\nNIFTY 50 is simulated at ₹${nFormattedText}.\nThe market structure shows a ${nBias.toLowerCase()} stance for tomorrow.`;
       }
 
       return {
         sensex_current: sCurrent,
-        sensex_change_pts: sCurrent - sPrev,
+        sensex_change_pts: sChangePts,
         sensex_change_pct: sChangePct,
         sensex_upside: sUpside,
         sensex_downside: sDownside,
@@ -2640,13 +2751,13 @@
         sensex_call_resistance: String(sUpside + 100),
         sensex_put_support: String(sDownside - 100),
         sensex_max_pain: String(Math.round((sCurrent + sUpside) / 2)),
-        sensex_buy_above: String(sCurrent + Math.round(sCurrent * 0.005)),
-        sensex_sell_below: String(sCurrent - Math.round(sCurrent * 0.005)),
-        sensex_sl_long: String(sCurrent - Math.round(sCurrent * 0.01)),
-        sensex_sl_short: String(sCurrent + Math.round(sCurrent * 0.01)),
+        sensex_buy_above: String(Math.round(sCurrent + sCurrent * 0.005)),
+        sensex_sell_below: String(Math.round(sCurrent - sCurrent * 0.005)),
+        sensex_sl_long: String(Math.round(sCurrent - sCurrent * 0.01)),
+        sensex_sl_short: String(Math.round(sCurrent + sCurrent * 0.01)),
 
         nifty_current: nCurrent,
-        nifty_change_pts: nCurrent - nPrev,
+        nifty_change_pts: nChangePts,
         nifty_change_pct: nChangePct,
         nifty_upside: nUpside,
         nifty_downside: nDownside,
@@ -2657,10 +2768,10 @@
         nifty_call_resistance: String(nUpside + 40),
         nifty_put_support: String(nDownside - 40),
         nifty_max_pain: String(Math.round((nCurrent + nUpside) / 2)),
-        nifty_buy_above: String(nCurrent + Math.round(nCurrent * 0.005)),
-        nifty_sell_below: String(nCurrent - Math.round(nCurrent * 0.005)),
-        nifty_sl_long: String(nCurrent - Math.round(nCurrent * 0.01)),
-        nifty_sl_short: String(nCurrent + Math.round(nCurrent * 0.01)),
+        nifty_buy_above: String(Math.round(nCurrent + nCurrent * 0.005)),
+        nifty_sell_below: String(Math.round(nCurrent - nCurrent * 0.005)),
+        nifty_sl_long: String(Math.round(nCurrent - nCurrent * 0.01)),
+        nifty_sl_short: String(Math.round(nCurrent + nCurrent * 0.01)),
 
         sentiment_score: sentimentScore,
         sentiment_reason: reasonHtml,
@@ -2692,10 +2803,11 @@
       const nDT2 = Math.round(nc - (nc - ndn) * tMult2);
       const nSlS = Math.round(nc + 50 * slMult);
 
+      const ncRound = Math.round(nc);
       if (lang === 'hi') {
-        return `📊 TRADING STRATEGY (${risk.toUpperCase()} MODE):\n\nNIFTY 50:\n🟢 BUY (CE): ${nc + 30} ke upar. Target ${nT1} / ${nT2}, Stoploss ${nSlL}\n🔴 SELL (PE): ${nc - 30} ke neeche. Target ${nDT1} / ${nDT2}, Stoploss ${nSlS}\n\n⚠️ Tip: Market news par reverse ho sakta hai. SL zaroor lagayein!`;
+        return `📊 TRADING STRATEGY (${risk.toUpperCase()} MODE):\n\nNIFTY 50 (CMP: ₹${nc.toFixed(1)}):\n🟢 BUY (CE): ${ncRound + 30} ke upar. Target ${nT1} / ${nT2}, Stoploss ${nSlL}\n🔴 SELL (PE): ${ncRound - 30} ke neeche. Target ${nDT1} / ${nDT2}, Stoploss ${nSlS}\n\n⚠️ Tip: Market news par reverse ho sakta hai. SL zaroor lagayein!`;
       } else {
-        return `📊 TRADING STRATEGY (${risk.toUpperCase()} MODE):\n\nNIFTY 50:\n🟢 BUY (CE): Above ${nc + 30}. Target ${nT1} / ${nT2}, Stoploss ${nSlL}\n🔴 SELL (PE): Below ${nc - 30}. Target ${nDT1} / ${nDT2}, Stoploss ${nSlS}\n\n⚠️ Tip: Markets can reverse on sudden news. Always use SL!`;
+        return `📊 TRADING STRATEGY (${risk.toUpperCase()} MODE):\n\nNIFTY 50 (CMP: ₹${nc.toFixed(1)}):\n🟢 BUY (CE): Above ${ncRound + 30}. Target ${nT1} / ${nT2}, Stoploss ${nSlL}\n🔴 SELL (PE): Below ${ncRound - 30}. Target ${nDT1} / ${nDT2}, Stoploss ${nSlS}\n\n⚠️ Tip: Markets can reverse on sudden news. Always use SL!`;
       }
     }
 
@@ -2707,7 +2819,11 @@
       const sPts = data.sensex_change_pts;
       const sPct = data.sensex_change_pct;
       const sIsUp = sPts >= 0;
-      document.getElementById('sensex-current').innerHTML = `Current: ₹${sc.toLocaleString('en-IN')} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${sIsUp ? 'green' : 'red'})">${sIsUp ? '▲ +' : '▼ '}${sPts.toFixed(1)} (${sIsUp ? '+' : ''}${sPct.toFixed(2)}%)</span>`;
+      const sFormatted = sc.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const sSign = sIsUp ? '▲ +' : '▼ -';
+      document.getElementById('sensex-current').innerHTML = `Current: ₹${sFormatted} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${sIsUp ? 'green' : 'red'})">${sSign}${Math.abs(sPts).toFixed(2)} (${sIsUp ? '+' : ''}${sPct.toFixed(2)}%)</span>`;
+      lastKnownSensexPrice = sc;
+
       document.getElementById('s-up').textContent = `₹${data.sensex_upside.toLocaleString('en-IN')}`;
       document.getElementById('s-dn').textContent = `₹${data.sensex_downside.toLocaleString('en-IN')}`;
       const supPct = (((data.sensex_upside - sc) / sc) * 100).toFixed(2);
@@ -2727,7 +2843,11 @@
       const nPts = data.nifty_change_pts;
       const nPct = data.nifty_change_pct;
       const nIsUp = nPts >= 0;
-      document.getElementById('nifty-current').innerHTML = `Current: ₹${nc.toLocaleString('en-IN')} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${nIsUp ? 'green' : 'red'})">${nIsUp ? '▲ +' : '▼ '}${nPts.toFixed(1)} (${nIsUp ? '+' : ''}${nPct.toFixed(2)}%)</span>`;
+      const nFormatted = nc.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const nSign = nIsUp ? '▲ +' : '▼ -';
+      document.getElementById('nifty-current').innerHTML = `Current: ₹${nFormatted} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${nIsUp ? 'green' : 'red'})">${nSign}${Math.abs(nPts).toFixed(2)} (${nIsUp ? '+' : ''}${nPct.toFixed(2)}%)</span>`;
+      lastKnownNiftyPrice = nc;
+
       document.getElementById('n-up').textContent = `₹${data.nifty_upside.toLocaleString('en-IN')}`;
       document.getElementById('n-dn').textContent = `₹${data.nifty_downside.toLocaleString('en-IN')}`;
       const nupPct = (((data.nifty_upside - nc) / nc) * 100).toFixed(2);
@@ -2748,9 +2868,9 @@
         if (!d) return;
         const valStr = String(d.val).replace(/[^0-9.]/g, '');
         const val = parseFloat(valStr) || 100;
-        const pts = val * (d.change / 100);
+        const pts = d.changePts != null ? Math.abs(d.changePts) : (val * (Math.abs(d.change) / 100));
         const isUp = d.change >= 0;
-        document.getElementById(`${id}-current`).innerHTML = `Current: ${d.val} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${isUp ? 'green' : 'red'})">${isUp ? '▲ +' : '▼ '}${pts.toFixed(2)} (${isUp ? '+' : ''}${d.change.toFixed(2)}%)</span>`;
+        document.getElementById(`${id}-current`).innerHTML = `Current: ${d.val} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${isUp ? 'green' : 'red'})">${isUp ? '▲ +' : '▼ -'}${pts.toFixed(2)} (${isUp ? '+' : ''}${d.change.toFixed(2)}%)</span>`;
         
         const upT = val * 1.015;
         const dnT = val * 0.985;
@@ -2790,9 +2910,7 @@
         document.getElementById('sector-body').innerHTML = sectors.map(s => {
           const isUp = s.change >= 0;
           const color = isUp ? 'var(--green)' : 'var(--red)';
-          const valStr = String(s.val).replace(/[^0-9.]/g, '');
-          const val = parseFloat(valStr) || 100;
-          const pts = val * (Math.abs(s.change) / 100);
+          const pts = s.changePts != null ? Math.abs(s.changePts) : (parseFloat(String(s.val).replace(/[^0-9.]/g, '')) * (Math.abs(s.change) / 100));
           
           return `
           <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
@@ -2852,6 +2970,168 @@
   `).join('');
 
       document.getElementById('last-updated').textContent = 'Last Updated: ' + new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST';
+    }
+
+    // ═══════════════════════════════════════════
+    // LIVE AUTO-REFRESH & FLASH ENGINE
+    // ═══════════════════════════════════════════
+    async function updateLiveQuotesOnly() {
+      if (isLiveUpdating) return;
+      const liveToggle = document.getElementById('liveToggle');
+      if (liveToggle && !liveToggle.checked) return;
+
+      isLiveUpdating = true;
+      const syncBadge = document.getElementById('sync-status');
+      if (syncBadge) syncBadge.textContent = 'SYNCING...';
+
+      try {
+        const liveDataArray = await fetchAllMarketData();
+        if (liveDataArray && liveDataArray.length > 0) {
+          applyLiveQuotesUpdate(liveDataArray);
+          const timeStr = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' });
+          const lastUp = document.getElementById('last-updated');
+          if (lastUp) lastUp.textContent = 'Last Updated: ' + timeStr + ' IST';
+          if (syncBadge) syncBadge.textContent = 'LIVE SYNC (' + timeStr.split(' ')[0] + ')';
+        }
+      } catch (err) {
+        console.warn('Background quote sync error:', err.message);
+        if (syncBadge) syncBadge.textContent = 'SYNC RETRYING';
+      } finally {
+        isLiveUpdating = false;
+      }
+    }
+
+    function applyLiveQuotesUpdate(liveDataArray) {
+      liveDataArray.forEach(item => {
+        const parsed = parseSparkItem(item);
+        if (!parsed) return;
+        const sym = parsed.sym;
+
+        if (sym === '^BSESN') {
+          const sc = parsed.price;
+          const sPts = parsed.pts;
+          const sPct = parsed.pct;
+          const sIsUp = sPts >= 0;
+          const sEl = document.getElementById('sensex-current');
+          if (sEl) {
+            const sFormatted = sc.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const sSign = sIsUp ? '▲ +' : '▼ -';
+            sEl.innerHTML = `Current: ₹${sFormatted} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${sIsUp ? 'green' : 'red'})">${sSign}${Math.abs(sPts).toFixed(2)} (${sIsUp ? '+' : ''}${sPct.toFixed(2)}%)</span>`;
+            if (lastKnownSensexPrice !== null && lastKnownSensexPrice !== sc) {
+              sEl.classList.remove('price-flash-up', 'price-flash-dn');
+              void sEl.offsetWidth; // Force reflow
+              sEl.classList.add(sc > lastKnownSensexPrice ? 'price-flash-up' : 'price-flash-dn');
+            }
+          }
+          lastKnownSensexPrice = sc;
+          tickerData[0] = {
+            name: 'SENSEX',
+            val: sc.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            chg: (sPct >= 0 ? '+' : '') + sPct.toFixed(2) + '%',
+            up: sPct >= 0
+          };
+        } else if (sym === '^NSEI') {
+          const nc = parsed.price;
+          const nPts = parsed.pts;
+          const nPct = parsed.pct;
+          const nIsUp = nPts >= 0;
+          const nEl = document.getElementById('nifty-current');
+          if (nEl) {
+            const nFormatted = nc.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const nSign = nIsUp ? '▲ +' : '▼ -';
+            nEl.innerHTML = `Current: ₹${nFormatted} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${nIsUp ? 'green' : 'red'})">${nSign}${Math.abs(nPts).toFixed(2)} (${nIsUp ? '+' : ''}${nPct.toFixed(2)}%)</span>`;
+            if (lastKnownNiftyPrice !== null && lastKnownNiftyPrice !== nc) {
+              nEl.classList.remove('price-flash-up', 'price-flash-dn');
+              void nEl.offsetWidth; // Force reflow
+              nEl.classList.add(nc > lastKnownNiftyPrice ? 'price-flash-up' : 'price-flash-dn');
+            }
+          }
+          lastKnownNiftyPrice = nc;
+          tickerData[1] = {
+            name: 'NIFTY 50',
+            val: nc.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            chg: (nPct >= 0 ? '+' : '') + nPct.toFixed(2) + '%',
+            up: nPct >= 0
+          };
+        } else {
+          const match = globalsList.find(g => g.sym === sym);
+          if (match) {
+            const tIdx = tickerData.findIndex(t => t.name === match.name);
+            const valStr = match.prefix + (parsed.price > 1000 ? parsed.price.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 }) : parsed.price.toFixed(2));
+            if (tIdx > -1) {
+              tickerData[tIdx].val = valStr;
+              tickerData[tIdx].chg = (parsed.pct >= 0 ? '+' : '') + parsed.pct.toFixed(2) + '%';
+              tickerData[tIdx].up = parsed.pct >= 0;
+            }
+            if (match.country === 'SECTOR') {
+              const sectorEls = document.querySelectorAll('#sector-body > div');
+              sectorEls.forEach(row => {
+                if (row.textContent.includes(match.name)) {
+                  const color = parsed.pct >= 0 ? 'var(--green)' : 'var(--red)';
+                  const isUp = parsed.pct >= 0;
+                  const ptsStr = `${isUp ? '▲ +' : '▼ -'}${Math.abs(parsed.pts).toFixed(2)}`;
+                  const pctStr = `${isUp ? '+' : ''}${parsed.pct.toFixed(2)}%`;
+                  row.innerHTML = `
+                    <div>
+                      <div style="font-family:var(--mono); font-size:11px; font-weight:bold;">${match.name}</div>
+                      <div style="font-family:var(--mono); font-size:10px; color:var(--text-muted);">Current: ${valStr}</div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div style="font-family:var(--mono); font-size:11px; color:${color}; font-weight:bold;">${ptsStr}</div>
+                      <div style="font-family:var(--mono); font-size:10px; color:${color};">${pctStr}</div>
+                    </div>
+                  `;
+                }
+              });
+            }
+            if (match.name === 'GOLD') popExtraCardLive('gold', valStr, parsed.pct, parsed.pts);
+            if (match.name === 'CRUDE OIL') popExtraCardLive('crude', valStr, parsed.pct, parsed.pts);
+            if (match.name === 'USD/INR') popExtraCardLive('usdinr', valStr, parsed.pct, parsed.pts);
+          }
+        }
+      });
+      buildTicker();
+    }
+
+    function popExtraCardLive(id, valStr, pct, pts) {
+      const el = document.getElementById(`${id}-current`);
+      if (!el) return;
+      const isUp = pct >= 0;
+      el.innerHTML = `Current: ${valStr} <span style="font-size:13px; font-weight:600; margin-left:8px; color:var(--${isUp ? 'green' : 'red'})">${isUp ? '▲ +' : '▼ -'}${Math.abs(pts).toFixed(2)} (${isUp ? '+' : ''}${pct.toFixed(2)}%)</span>`;
+    }
+
+    async function triggerManualRefresh() {
+      const spinHeader = document.getElementById('quick-refresh-icon');
+      const spinMain = document.getElementById('main-refresh-icon');
+      if (spinHeader) spinHeader.classList.add('spinning');
+      if (spinMain) spinMain.classList.add('spinning');
+
+      try {
+        await updateLiveQuotesOnly();
+      } finally {
+        setTimeout(() => {
+          if (spinHeader) spinHeader.classList.remove('spinning');
+          if (spinMain) spinMain.classList.remove('spinning');
+        }, 600);
+      }
+    }
+
+    function handleLiveToggleChange() {
+      const liveToggle = document.getElementById('liveToggle');
+      const syncBadge = document.getElementById('sync-status');
+      if (liveToggle && liveToggle.checked) {
+        if (!autoRefreshTimer) {
+          autoRefreshTimer = setInterval(updateLiveQuotesOnly, 15000);
+        }
+        if (syncBadge) syncBadge.textContent = 'LIVE SYNC (15s)';
+        updateLiveQuotesOnly();
+      } else {
+        if (autoRefreshTimer) {
+          clearInterval(autoRefreshTimer);
+          autoRefreshTimer = null;
+        }
+        if (syncBadge) syncBadge.textContent = 'PAUSED';
+      }
     }
 
     // ═══════════════════════════════════════════
@@ -3232,12 +3512,23 @@
       buildExtraCard('crude', 'CRUDE OIL', 'var(--text-muted)') +
       buildExtraCard('usdinr', 'USD/INR', 'var(--green)');
 
-    // Automatically fetch live market data on page load
+    // Automatically fetch live market data on page load and start 15s live auto-update loop
     document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         console.log("🚀 Automatically fetching live market data on page load...");
         runAnalysis();
+        // Start 15s background auto-update ticker loop
+        if (!autoRefreshTimer) {
+          autoRefreshTimer = setInterval(updateLiveQuotesOnly, 15000);
+        }
       }, 1000);
+    });
+
+    // Refresh immediately when returning to tab
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        updateLiveQuotesOnly();
+      }
     });
 
     // ═══════════════════════════════════════════
